@@ -16,14 +16,14 @@ use IteratorAggregate;
 final class LevelOrderTraversalIterator implements IteratorAggregate
 {
     /** @var callable */
-    private $index;
+    private $key;
 
     public function __construct(
         private TreeNodeContract $node,
-        ?callable $index = null,
+        ?callable $key = null,
         private ?array $startingVector = null,
     ) {
-        $this->index = $index ?? fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter;
+        $this->key = $key ?? fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter;
     }
 
     public function getIterator(): Generator
@@ -44,9 +44,9 @@ final class LevelOrderTraversalIterator implements IteratorAggregate
         while ($tuple = array_shift($queue)) {
             [$node, $vector, $seq] = $tuple;
 
-            // The yielded index is calculated based on the index function.
+            // The yielded key is calculated by the key function.
             // By default, it returns an incrementing sequence to prevent issues with `iterator_to_array` casts.
-            yield ($this->index)($node, $vector, $seq, $counter) => $node;
+            yield ($this->key)($node, $vector, $seq, $counter) => $node;
             $counter += 1;
 
             $seq = 0;

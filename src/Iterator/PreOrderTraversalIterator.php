@@ -16,14 +16,14 @@ use IteratorAggregate;
 final class PreOrderTraversalIterator implements IteratorAggregate
 {
     /** @var callable */
-    private $index;
+    private $key;
 
     public function __construct(
         private TreeNodeContract $node,
-        ?callable $index = null,
+        ?callable $key = null,
         private ?array $startingVector = null,
     ) {
-        $this->index = $index ?? fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter;
+        $this->key = $key ?? fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter;
     }
 
     public function getIterator(): Generator
@@ -38,9 +38,9 @@ final class PreOrderTraversalIterator implements IteratorAggregate
 
     private function generate(TreeNodeContract $node, array $vector, int $nodeSeq, Counter $counter)
     {
-        // The yielded index is calculated based on the index function.
+        // The yielded key is calculated by the key function.
         // By default, it returns an incrementing sequence to prevent issues with `iterator_to_array` casts.
-        yield ($this->index)($node, $vector, $nodeSeq, $counter->touch()) => $node;
+        yield ($this->key)($node, $vector, $nodeSeq, $counter->touch()) => $node;
 
         // $seq is the child sequence number, within the given parent node.
         $seq = 0;
