@@ -2,7 +2,12 @@
   "name": "dakujem/oliva",
   "description": "Flexible tree structures, materialized path trees, tree iterators.",
   "license": "Unlicense",
-  "keywords": ["tree iterators", "tree structures", "materialized path tree", "recursive tree"],
+  "keywords": [
+    "tree iterators",
+    "tree structures",
+    "materialized path tree",
+    "recursive tree"
+  ],
   "authors": [
     {
       "name": "Andrej Rypák",
@@ -12,9 +17,18 @@
   "require": {
     "php": "^8"
   },
+  "require-dev": {
+    "nette/tester": "^2.5",
+    "tracy/tracy": "^2"
+  },
   "autoload": {
     "psr-4": {
       "Dakujem\\Oliva\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-trunk": "1.0.x-dev"
     }
   }
 }
