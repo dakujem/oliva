@@ -12,8 +12,6 @@ use Tester\Assert;
 use Tester\Environment;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-// tester
 Environment::setup();
 
 $a = new Node('A');

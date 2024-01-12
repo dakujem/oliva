@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dakujem\Oliva\Builder;
+namespace Dakujem\Oliva\MaterializedPath\Support;
 
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\Node;
@@ -17,17 +17,24 @@ use LogicException;
 final class ShadowNode extends Node implements MovableNodeContract
 {
     public function __construct(
-        ?TreeNodeContract $realNode,
-        ShadowNode $parent,
-        string $path, // alebo vector?
-        string|int $key,
+        ?TreeNodeContract $node,
+        ?ShadowNode $parent = null,
     ) {
         parent::__construct(
-            data: $realNode,
+            data: $node,
             parent: $parent,
         );
     }
 
+    /**
+     * Reconstruct the real tree according to the connections of the shadow tree.
+     * Reflect all the shadow tree's child-parent links to the actual tree
+     * and return the root.
+     *
+     * Note:
+     *   Should only be called on a root shadow node,
+     *   otherwise a non-root node may be returned.
+     */
     public function reconstructRealTree(): ?TreeNodeContract
     {
         $realNode = $this->realNode();
@@ -43,7 +50,7 @@ final class ShadowNode extends Node implements MovableNodeContract
         return $realNode;
     }
 
-    private function realNode(): ?TreeNodeContract
+    public function realNode(): ?TreeNodeContract
     {
         return $this->data();
     }
