@@ -81,7 +81,7 @@ Assert::same('FBADCEGIH', $str);
 
 $iterator = new PreOrderTraversalIterator(
     node: $root,
-    index: null,
+    key: null,
 );
 $expected = [
     0 => 'F',
@@ -99,7 +99,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 $iterator = new PreOrderTraversalIterator(
     node: $root,
-    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter + 1,
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter + 1,
 );
 $expected = [
     1 => 'F',
@@ -117,7 +117,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 $iterator = new PreOrderTraversalIterator(
     node: $root,
-    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '.' . implode('.', $vector),
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '.' . implode('.', $vector),
 );
 $expected = [
     '.' => 'F',
@@ -135,7 +135,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 $iterator = new PreOrderTraversalIterator(
     node: $root,
-    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
 );
 $expected = [
@@ -168,7 +168,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 $iterator = new PostOrderTraversalIterator(
     node: $root,
-    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
 );
 $expected = [
@@ -202,7 +202,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 $iterator = new LevelOrderTraversalIterator(
     node: $root,
-    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
 );
 $expected = [

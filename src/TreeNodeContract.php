@@ -27,16 +27,16 @@ interface TreeNodeContract
      * Get a specific child, if possible.
      * Returns `null` when there is no such a child.
      */
-    public function child(string|int $index): ?TreeNodeContract;
+    public function child(string|int $key): ?TreeNodeContract;
 
     /**
-     * Get a child's index, if possible.
+     * Get a child's key (index), if possible.
      * Returns `null` when the node is not a child.
      */
-    public function childIndex(TreeNodeContract $node): string|int|null;
+    public function childKey(TreeNodeContract $node): string|int|null;
 
     /**
-     * Discover whether the given node is one or the given index points to one of this node's children.
+     * Discover whether the given node is one or the given key points to one of this node's children.
      */
     public function hasChild(TreeNodeContract|string|int $child): bool;
 

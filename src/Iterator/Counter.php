@@ -6,6 +6,7 @@ namespace Dakujem\Oliva\Iterator;
 
 /**
  * @internal
+ *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class Counter

@@ -10,7 +10,7 @@ use IteratorAggregate;
 use JsonSerializable;
 
 /**
- * Base data node implementation.
+ * Basic data node implementation.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
@@ -36,25 +36,25 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
     public function hasChild(TreeNodeContract|string|int $child): bool
     {
         if (is_scalar($child)) {
-            $index = $child;
-            $child = $this->child($child);
+            $key = $child;
+            $child = $this->child($key);
         } else {
-            $index = $this->childIndex($child);
+            $key = $this->childKey($child);
         }
         // Note: Important to check both conditions.
-        return null !== $child && null !== $index;
+        return null !== $child && null !== $key;
     }
 
-    public function child(int|string $index): ?TreeNodeContract
+    public function child(int|string $key): ?TreeNodeContract
     {
-        return $this->children[$index] ?? null;
+        return $this->children[$key] ?? null;
     }
 
-    public function childIndex(TreeNodeContract $node): string|int|null
+    public function childKey(TreeNodeContract $node): string|int|null
     {
-        foreach ($this->children as $index => $child) {
+        foreach ($this->children as $key => $child) {
             if ($child === $node) {
-                return $index;
+                return $key;
             }
         }
         return null;
@@ -96,12 +96,12 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
         return $this;
     }
 
-    public function addChild(TreeNodeContract $child, string|int|null $index = null): self
+    public function addChild(TreeNodeContract $child, string|int|null $key = null): self
     {
-        if (null === $index) {
+        if (null === $key) {
             $this->children[] = $child;
-        } elseif (!isset($this->children[$index])) {
-            $this->children[$index] = $child;
+        } elseif (!isset($this->children[$key])) {
+            $this->children[$key] = $child;
         } else {
             throw new Exception('Collision not allowed.');
         }
@@ -110,9 +110,9 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
 
     public function removeChild(TreeNodeContract|string|int $child): self
     {
-        $index = is_scalar($child) ? $child : $this->childIndex($child);
-        if (null !== $index) {
-            unset($this->children[$index]);
+        $key = is_scalar($child) ? $child : $this->childKey($child);
+        if (null !== $key) {
+            unset($this->children[$key]);
         }
         return $this;
     }
@@ -128,7 +128,7 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
         return new PreOrderTraversalIterator($this);
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return [
             'data' => $this->data(),

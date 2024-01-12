@@ -12,11 +12,24 @@ namespace Dakujem\Oliva;
  */
 interface MovableNodeContract extends TreeNodeContract
 {
+    /**
+     * Link the parent node.
+     */
     public function setParent(?TreeNodeContract $parent): self;
 
-    public function addChild(TreeNodeContract $child, string|int|null $index = null): self;
+    /**
+     * Add a child,
+     * optionally specifying a key (index).
+     */
+    public function addChild(TreeNodeContract $child, string|int|null $key = null): self;
 
+    /**
+     * Remove a specific child.
+     */
     public function removeChild(TreeNodeContract|string|int $child): self;
 
+    /**
+     * Remove all children.
+     */
     public function removeChildren(): self;
 }

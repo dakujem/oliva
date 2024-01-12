@@ -48,12 +48,12 @@ final class ShadowNode extends Node implements MovableNodeContract
         return $this->data();
     }
 
-    public function addChild(TreeNodeContract $child, string|int|null $index = null): self
+    public function addChild(TreeNodeContract $child, string|int|null $key = null): self
     {
         if (!$child instanceof self) {
             throw new LogicException('Invalid use of a shadow node. Only shadow nodes can be children of shadow nodes.');
         }
-        return parent::addChild($child, $index);
+        return parent::addChild($child, $key);
     }
 
     public function setParent(?TreeNodeContract $parent): self
