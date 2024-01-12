@@ -9,6 +9,7 @@ use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
 use Dakujem\Oliva\MaterializedPath\Support\Tree;
 use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
+use RuntimeException;
 
 /**
  * Materialized path tree builder. Builds trees from flat data collections.
@@ -76,7 +77,11 @@ final class TreeBuilder
         callable $node,
         callable $vector,
     ): TreeNodeContract {
-        return $this->buildTree($input, $node, $vector)->root();
+        $root = $this->buildTree($input, $node, $vector)->root();
+        if (null === $root) {
+            throw new RuntimeException('Corrupted input, no tree created.');
+        }
+        return $root;
     }
 
     public function buildTree(
@@ -117,7 +122,7 @@ final class TreeBuilder
             }
 
             // Check for consistency.
-            if ($node instanceof TreeNodeContract) {
+            if (!$node instanceof TreeNodeContract) {
                 // TODO improve exceptions
                 throw new LogicException('The node factory must return a node instance.');
             }
@@ -135,18 +140,13 @@ final class TreeBuilder
                 }
             }
 
-            // Check for node collisions.
-            $existingNode = $register->pull($vector);
-            if ($existingNode->realNode() instanceof TreeNodeContract) {
-                // TODO improve exceptions
-                throw new LogicException('Duplicate node vector: ' . implode('.', $vector));
-            }
-
-            $shadow = new ShadowNode($node);
-
-            // Finally, connect the node to the tree.
-            // Make sure all the (shadow) nodes exist all the way to the root.
-            $this->connectNode($shadow, $vector, $register/*, $key*/);
+            // Finally, connect the newly created shadow node to the shadow tree.
+            // Make sure all the shadow nodes exist all the way to the root.
+            $this->connectNode(
+                new ShadowNode($node),
+                $vector,
+                $register,
+            );
         }
 
         // Pull the shadow root from the register.
@@ -162,7 +162,7 @@ final class TreeBuilder
 
         // If the node is already in the registry, replace the real node and return.
         if (null !== $existingNode) {
-            // We first need to check for node collisions.
+            // Check for node collisions.
             if (null !== $node->realNode() && null !== $existingNode->realNode()) {
                 // TODO improve exceptions
                 throw new LogicException('Duplicate node vector: ' . implode('.', $vector));
@@ -194,6 +194,7 @@ final class TreeBuilder
             // Establish parent-child relationship.
             $node->setParent($parent);
             $parent->addChild($node);
+            return;
         }
 
         // Otherwise create a bridging node, push it to the registry, link them and continue recursively,

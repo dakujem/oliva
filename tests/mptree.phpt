@@ -19,23 +19,30 @@ class Item
 }
 
 $data = [
+    new Item(0, ''), // TODO get rid of this
     new Item(1, '000'),
     new Item(2, '001'),
-    new Item(3, '003'),
-    new Item(4, '000000'),
-    new Item(5, '002000'),
-    new Item(6, '002'),
+//    new Item(3, '003'),
+//    new Item(4, '000000'),
+//    new Item(5, '002000'),
+//    new Item(6, '002'),
+//    new Item(7, '007007007'),
+//    new Item(8, '008'),
 ];
 
 $builder = new TreeBuilder();
-$root = $builder->build(
+$tree = $builder->buildTree(
     input: $data,
     node: fn(Item $item) => new Node($item),
-    vector: TreeBuilder::fixed(3, fn(Item $item) => $item->path),
+    vector: TreeBuilder::fixed(
+        3,
+        fn(Item $item) => $item->path,
+    ),
 );
 
+xdebug_break();
 
-$item = $root->data();
+$item = $tree->root()?->data();
 
 
 // rekalkulacia / presuny ?

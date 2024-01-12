@@ -17,7 +17,7 @@ use Dakujem\Oliva\TreeNodeContract;
 class Tree
 {
     public function __construct(
-        private TreeNodeContract $root,
+        private ?TreeNodeContract $root,
         private ShadowNode $shadowRoot,
     ) {
     }
@@ -25,7 +25,7 @@ class Tree
     /**
      * Return the actual tree root.
      */
-    public function root(): TreeNodeContract
+    public function root(): ?TreeNodeContract
     {
         return $this->root;
     }
