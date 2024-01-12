@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dakujem\Oliva\Iterator;
+namespace Dakujem\Oliva\Iterator\Support;
 
 /**
  * @internal

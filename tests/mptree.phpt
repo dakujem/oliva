@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Dakujem\Oliva\Iterator\PreOrderTraversalIterator;
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
@@ -41,7 +41,7 @@ $tree = $builder->buildTree(
     ),
 );
 
-$it = new PreOrderTraversalIterator($tree->root(), fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '>' . implode('.', $vector));
+$it = new PreOrderTraversal($tree->root(), fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '>' . implode('.', $vector));
 foreach($it as $key => $node){
     $item = $node->data();
     if(null === $item){

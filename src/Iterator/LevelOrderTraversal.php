@@ -13,7 +13,7 @@ use IteratorAggregate;
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
-final class LevelOrderTraversalIterator implements IteratorAggregate
+final class LevelOrderTraversal implements IteratorAggregate
 {
     /** @var callable */
     private $key;

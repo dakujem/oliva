@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva;
 
-use Dakujem\Oliva\Iterator\PreOrderTraversalIterator;
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Exception;
 use IteratorAggregate;
 use JsonSerializable;
@@ -123,9 +123,9 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
         return $this;
     }
 
-    public function getIterator(): PreOrderTraversalIterator
+    public function getIterator(): PreOrderTraversal
     {
-        return new PreOrderTraversalIterator($this);
+        return new PreOrderTraversal($this);
     }
 
     public function jsonSerialize(): array

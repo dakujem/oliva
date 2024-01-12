@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Dakujem\Oliva\DataNodeContract;
-use Dakujem\Oliva\Iterator\LevelOrderTraversalIterator;
-use Dakujem\Oliva\Iterator\PostOrderTraversalIterator;
-use Dakujem\Oliva\Iterator\PreOrderTraversalIterator;
+use Dakujem\Oliva\Iterator\LevelOrderTraversal;
+use Dakujem\Oliva\Iterator\PostOrderTraversal;
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
 use Tester\Assert;
@@ -39,7 +39,7 @@ $edge($f, $g);
 $edge($g, $i);
 $edge($i, $h);
 
-$iterator = new PreOrderTraversalIterator($root);
+$iterator = new PreOrderTraversal($root);
 $str = '';
 foreach ($iterator as $node) {
     $str .= $node->data();
@@ -48,7 +48,7 @@ foreach ($iterator as $node) {
 //echo "\n";
 Assert::same('FBADCEGIH', $str);
 
-$iterator = new PostOrderTraversalIterator($root);
+$iterator = new PostOrderTraversal($root);
 $str = '';
 foreach ($iterator as $node) {
     $str .= $node->data();
@@ -57,7 +57,7 @@ foreach ($iterator as $node) {
 //echo "\n";
 Assert::same('ACEDBHIGF', $str);
 
-$iterator = new LevelOrderTraversalIterator($root);
+$iterator = new LevelOrderTraversal($root);
 $str = '';
 foreach ($iterator as $i => $node) {
     $str .= $node->data();
@@ -67,7 +67,7 @@ foreach ($iterator as $i => $node) {
 Assert::same('FBGADICEH', $str);
 
 //echo "\n";
-Assert::type(PreOrderTraversalIterator::class, $root->getIterator());
+Assert::type(PreOrderTraversal::class, $root->getIterator());
 $str = '';
 foreach ($root as $node) {
     $str .= $node->data();
@@ -77,7 +77,7 @@ Assert::same('FBADCEGIH', $str);
 //echo "\n";
 
 
-$iterator = new PreOrderTraversalIterator(
+$iterator = new PreOrderTraversal(
     node: $root,
     key: null,
 );
@@ -95,7 +95,7 @@ $expected = [
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
 
-$iterator = new PreOrderTraversalIterator(
+$iterator = new PreOrderTraversal(
     node: $root,
     key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): int => $counter + 1,
 );
@@ -113,7 +113,7 @@ $expected = [
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
 
-$iterator = new PreOrderTraversalIterator(
+$iterator = new PreOrderTraversal(
     node: $root,
     key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '.' . implode('.', $vector),
 );
@@ -131,7 +131,7 @@ $expected = [
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
 
-$iterator = new PreOrderTraversalIterator(
+$iterator = new PreOrderTraversal(
     node: $root,
     key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
@@ -150,7 +150,7 @@ $expected = [
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
 
-$iterator = new PostOrderTraversalIterator($root);
+$iterator = new PostOrderTraversal($root);
 $expected = [
     0 => 'A',
     'C',
@@ -164,7 +164,7 @@ $expected = [
 ];
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
-$iterator = new PostOrderTraversalIterator(
+$iterator = new PostOrderTraversal(
     node: $root,
     key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
@@ -184,7 +184,7 @@ Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), i
 
 
 
-$iterator = new LevelOrderTraversalIterator($root);
+$iterator = new LevelOrderTraversal($root);
 $expected = [
     0 => 'F',
     'B',
@@ -198,7 +198,7 @@ $expected = [
 ];
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
-$iterator = new LevelOrderTraversalIterator(
+$iterator = new LevelOrderTraversal(
     node: $root,
     key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
     startingVector: ['a', 'b'],
