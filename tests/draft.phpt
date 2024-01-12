@@ -46,8 +46,8 @@ $str = '';
 foreach ($iterator as $node) {
     $str .= $node->data();
 }
-echo $str;
-echo "\n";
+//echo $str;
+//echo "\n";
 Assert::same('FBADCEGIH', $str);
 
 $iterator = new PostOrderTraversalIterator($root);
@@ -55,8 +55,8 @@ $str = '';
 foreach ($iterator as $node) {
     $str .= $node->data();
 }
-echo $str;
-echo "\n";
+//echo $str;
+//echo "\n";
 Assert::same('ACEDBHIGF', $str);
 
 $iterator = new LevelOrderTraversalIterator($root);
@@ -64,15 +64,19 @@ $str = '';
 foreach ($iterator as $i => $node) {
     $str .= $node->data();
 }
-echo $str;
-echo "\n";
+//echo $str;
+//echo "\n";
 Assert::same('FBGADICEH', $str);
 
-echo "\n";
-foreach ($root as $i) {
-    echo $i->data();
+//echo "\n";
+Assert::type(PreOrderTraversalIterator::class, $root->getIterator());
+$str = '';
+foreach ($root as $node) {
+    $str .= $node->data();
 }
-echo "\n";
+//echo $str;
+Assert::same('FBADCEGIH', $str);
+//echo "\n";
 
 
 $iterator = new PreOrderTraversalIterator(
@@ -161,5 +165,58 @@ $expected = [
     'F',
 ];
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+
+$iterator = new PostOrderTraversalIterator(
+    node: $root,
+    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
+    startingVector: ['a', 'b'],
+);
+$expected = [
+    'a.b.0.0' => 'A',
+    'a.b.0.1.0' => 'C',
+    'a.b.0.1.1' => 'E',
+    'a.b.0.1' => 'D',
+    'a.b.0' => 'B',
+    'a.b.1.0.0' => 'H',
+    'a.b.1.0' => 'I',
+    'a.b.1' => 'G',
+    'a.b' => 'F',
+];
+Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+
+
+
+$iterator = new LevelOrderTraversalIterator($root);
+$expected = [
+    0 => 'F',
+    'B',
+    'G',
+    'A',
+    'D',
+    'I',
+    'C',
+    'E',
+    'H',
+];
+Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+
+$iterator = new LevelOrderTraversalIterator(
+    node: $root,
+    index: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => implode('.', $vector),
+    startingVector: ['a', 'b'],
+);
+$expected = [
+    'a.b' => 'F',
+    'a.b.0' => 'B',
+    'a.b.1' => 'G',
+    'a.b.0.0' => 'A',
+    'a.b.0.1' => 'D',
+    'a.b.1.0' => 'I',
+    'a.b.0.1.0' => 'C',
+    'a.b.0.1.1' => 'E',
+    'a.b.1.0.0' => 'H',
+];
+Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+
 
 //$root->addChild(new)
