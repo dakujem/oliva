@@ -7,7 +7,7 @@ Flexible tree structures, materialized path trees, tree traversal iterators.
 >
 
 
-This package is a modern reimplementation of `dakujem/oliva-tree`.
+This package is a modern reimplementation of [`dakujem/oliva-tree`](https://github.com/dakujem/oliva-tree).
 
 
 A tree is a form of a graph, specifically a directed acyclic graph (DAG).  
@@ -23,6 +23,7 @@ use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
 $data = [
+    new Item(0, ''),
     new Item(1, '000'),
     new Item(2, '001'),
     new Item(3, '003'),
