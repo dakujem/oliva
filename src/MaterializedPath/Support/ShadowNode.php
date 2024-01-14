@@ -10,14 +10,14 @@ use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
 
 /**
- * ShadowNode
+ * Shadow node used internally when building materialized path trees.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class ShadowNode extends Node implements MovableNodeContract
 {
     public function __construct(
-        ?TreeNodeContract $node,
+        ?MovableNodeContract $node,
         ?ShadowNode $parent = null,
     ) {
         parent::__construct(
@@ -50,7 +50,7 @@ final class ShadowNode extends Node implements MovableNodeContract
         return $realNode;
     }
 
-    public function realNode(): ?TreeNodeContract
+    public function realNode(): ?MovableNodeContract
     {
         return $this->data();
     }

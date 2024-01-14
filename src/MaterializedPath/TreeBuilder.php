@@ -7,34 +7,37 @@ namespace Dakujem\Oliva\MaterializedPath;
 use Dakujem\Oliva\MaterializedPath\Support\Register;
 use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
 use Dakujem\Oliva\MaterializedPath\Support\Tree;
+use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
 use RuntimeException;
 
 /**
- * Materialized path tree builder. Builds trees from flat data collections.
+ * Materialized path tree builder.
+ * Builds trees from flat data collections.
+ * Each item of a collection must contain path information.
  *
  * The builder needs to be provided an iterable data collection, a node factory
- * and a vector extractor that returns the node's vector based on the data.
- * The extractor will typically be a simple function that takes a path prop/attribute from the data item
+ * and a vector extractor that returns the node's path vector based on the data.
+ * The extractor will typically be a simple function that takes a serialized path prop/attribute from the data item
  * and splits or explodes it into a vector.
  * Two common-case extractors can be created using the `fixed` and `delimited` methods.
  *
  * Fixed path variant example:
  * ```
- * $root = (new MaterializedPathTreeBuilder())->build(
+ * $root = (new TreeBuilder())->build(
  *     $myItemCollection,
  *     fn(MyItem $item) => new Node($item),
- *     MaterializedPathTreeBuilder::fixed(3, fn(MyItem $item) => $item->path),
+ *     TreeBuilder::fixed(3, fn(MyItem $item) => $item->path),
  * );
  * ```
  *
  * Delimited path variant example:
  * ```
- * $root = (new MaterializedPathTreeBuilder())->build(
+ * $root = (new TreeBuilder())->build(
  *     $myItemCollection,
  *     fn(MyItem $item) => new Node($item),
- *     MaterializedPathTreeBuilder::delimited('.', fn(MyItem $item) => $item->path),
+ *     TreeBuilder::delimited('.', fn(MyItem $item) => $item->path),
  * );
  * ```
  *
@@ -117,14 +120,15 @@ final class TreeBuilder
             $node = $nodeFactory($data, $inputIndex);
 
             // Enable skipping particular data.
-            if (null === $node) {
-                continue;
-            }
+            // TODO use input filter instead
+//            if (null === $node) {
+//                continue;
+//            }
 
             // Check for consistency.
-            if (!$node instanceof TreeNodeContract) {
+            if (!$node instanceof MovableNodeContract) {
                 // TODO improve exceptions
-                throw new LogicException('The node factory must return a node instance.');
+                throw new LogicException('The node factory must return a movable node instance.');
             }
 
             // Calculate the node's vector.

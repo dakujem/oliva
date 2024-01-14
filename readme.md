@@ -44,3 +44,10 @@ $root = $builder->build(
 
 Since child nodes are be added to parents in the order they appear in the source data, sorting the source collection by path prior to building the tree may be a good idea. 
 
+
+## Builders
+
+Caveats:
+- no root in data
+- null data rows
+

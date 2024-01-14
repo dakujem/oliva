@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Dakujem\Oliva\DataNodeContract;
 use Dakujem\Oliva\Iterator\Data;
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
@@ -44,14 +43,19 @@ $tree = $builder->buildTree(
     ),
 );
 
-$it = new PreOrderTraversal($tree->root(), fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '>' . implode('.', $vector));
-foreach($it as $key => $node){
+$it = new PreOrderTraversal($tree->root(), fn(
+    TreeNodeContract $node,
+    array $vector,
+    int $seq,
+    int $counter,
+): string => '>' . implode('.', $vector));
+foreach ($it as $key => $node) {
     $item = $node->data();
-    if(null === $item){
-        echo '>root'."\n";
+    if (null === $item) {
+        echo '>root' . "\n";
         continue;
     }
-    $pad = str_pad($key, 10, ' ',STR_PAD_LEFT);
+    $pad = str_pad($key, 10, ' ', STR_PAD_LEFT);
     echo "$pad {$item->id} {$item->path}\n";
 }
 
