@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Dakujem\Oliva\DataNodeContract;
+use Dakujem\Oliva\Iterator\Data;
+use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
@@ -33,7 +36,7 @@ $data = [
 
 $builder = new TreeBuilder();
 $tree = $builder->buildTree(
-    input: TreeBuilder::rootNull($data),
+    input: Data::nullFirst($data),
     node: fn(?Item $item) => new Node($item),
     vector: TreeBuilder::fixed(
         3,

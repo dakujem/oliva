@@ -8,7 +8,6 @@ use Dakujem\Oliva\MaterializedPath\Support\Register;
 use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
 use Dakujem\Oliva\MaterializedPath\Support\Tree;
 use Dakujem\Oliva\TreeNodeContract;
-use Generator;
 use LogicException;
 use RuntimeException;
 
@@ -71,29 +70,6 @@ final class TreeBuilder
             }
             return explode($delimiter, $path);
         };
-    }
-
-    /**
-     * Prepend `null` value at the beginning of the data collection.
-     * Use when missing root.
-     * Remember, the data accessor and the node factory must be aware that a null may be passed to them.
-     */
-    public static function rootNull(iterable $input): Generator
-    {
-        yield null;
-        yield from $input;
-    }
-
-    /**
-     * Create a merged iterable.
-     * Can be used to prepend or append data from multiple source collections.
-     * The data is not actually merged, but a generator is used.
-     */
-    public static function merged(iterable ...$input): Generator
-    {
-        foreach ($input as $iterable) {
-            yield from $iterable;
-        }
     }
 
     public function build(

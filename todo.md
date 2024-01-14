@@ -2,7 +2,18 @@
 
 ... after 8+ years
 
+
+- [x] filter
+- [x] iterating over tree without a real data root
+- [ ] recursive tree builder
+- [ ] calculus
+- [ ] dox
+
+
 ---
+
+<details>
+<summary>No longer relevant... I kept it minimal.</summary>
 
 tree generics
 - node visitor (base for possible future filter, comparator, etc.)
@@ -26,3 +37,5 @@ refactor
 
 add
 - address object/interface
+
+</details>
