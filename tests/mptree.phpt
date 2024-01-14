@@ -57,6 +57,9 @@ foreach($it as $key => $node){
 
 //xdebug_break();
 
+new Filter($it, Data::omitNull());
+new Filter($it, Data::omitRoot());
+
 $item = $tree->root()?->data();
 
 
