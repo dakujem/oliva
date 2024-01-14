@@ -128,7 +128,10 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
         return new PreOrderTraversal($this);
     }
 
-    public function jsonSerialize(): array
+    /**
+     * @return mixed Intentionally returns mixed and not an array, so that overriding implementations may expand it to whatever value desired.
+     */
+    public function jsonSerialize(): mixed
     {
         return [
             'data' => $this->data(),
