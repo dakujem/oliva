@@ -47,7 +47,7 @@ final class TreeBuilder
 {
     public static function fixed(int $levelWidth, callable $accessor): callable
     {
-        return function (mixed $data) use ($levelWidth, $accessor) {
+        return function (mixed $data) use ($levelWidth, $accessor): array {
             $path = $accessor($data);
             if (null === $path) {
                 return [];
@@ -62,7 +62,10 @@ final class TreeBuilder
 
     public static function delimited(string $delimiter, callable $accessor): callable
     {
-        return function (mixed $data) use ($delimiter, $accessor) {
+        if (strlen($delimiter) !== 1) {
+            throw new LogicException('The delimiter must be a single character.');
+        }
+        return function (mixed $data) use ($delimiter, $accessor): array {
             $path = $accessor($data);
             if (null === $path) {
                 return [];
@@ -70,6 +73,10 @@ final class TreeBuilder
             if (!is_string($path)) {
                 // TODO improve exceptions (index/path etc)
                 throw new LogicException('Invalid path returned.');
+            }
+            $path = trim($path, $delimiter);
+            if ('' === $path) {
+                return [];
             }
             return explode($delimiter, $path);
         };
