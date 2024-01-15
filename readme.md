@@ -32,7 +32,7 @@ $tree = (new TreeBuilder)->build(
 );
 ```
 
-The builders are flexible and allow to create any node classes via the _node factory_ callable.  
+The builders are flexible and allow to create any node instances via the _node factory_ callable.  
 The simplest one may look like this
 ```php
 fn(mixed $data) => new \Dakujem\Oliva\Node($data);
