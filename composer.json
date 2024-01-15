@@ -30,5 +30,8 @@
     "branch-alias": {
       "dev-trunk": "1.0.x-dev"
     }
+  },
+  "archive": {
+    "exclude": ["/tests", "/.github"]
   }
 }
