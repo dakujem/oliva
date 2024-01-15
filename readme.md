@@ -86,13 +86,13 @@ use Dakujem\Oliva\Node;
 
 // The input data may be a result of an SQL query or ny other iterable collection.
 $data = [
-    new Item(0, ''), // the root
-    new Item(1, '000'),
-    new Item(2, '001'),
-    new Item(3, '003'),
-    new Item(4, '000000'),
-    new Item(5, '002000'),
-    new Item(6, '002'),
+    new Item(id: 0, path: ''), // the root
+    new Item(id: 1, path: '000'),
+    new Item(id: 2, path: '001'),
+    new Item(id: 3, path: '003'),
+    new Item(id: 4, path: '000000'),
+    new Item(id: 5, path: '002000'),
+    new Item(id: 6, path: '002'),
 ];
 
 $builder = new TreeBuilder();
@@ -113,13 +113,13 @@ use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
 $data = [
-    new Item(0, null), // the root
-    new Item(1, '.0'),
-    new Item(2, '.1'),
-    new Item(3, '.3'),
-    new Item(4, '.0.0'),
-    new Item(5, '.2.0'),
-    new Item(6, '.2'),
+    new Item(id: 0, path: null), // the root
+    new Item(id: 1, path: '.0'),
+    new Item(id: 2, path: '.1'),
+    new Item(id: 3, path: '.3'),
+    new Item(id: 4, path: '.0.0'),
+    new Item(id: 5, path: '.2.0'),
+    new Item(id: 6, path: '.2'),
 ];
 
 $builder = new TreeBuilder();
@@ -151,13 +151,13 @@ use Dakujem\Oliva\Node;
 
 $data = [
     // self_id, parent_id
-    new Item(0, null),
-    new Item(1, 0),
-    new Item(2, 0),
-    new Item(3, 0),
-    new Item(4, 1),
-    new Item(5, 6),
-    new Item(6, 0),
+    new Item(id: 0, parent: null),
+    new Item(id: 1, parent: 0),
+    new Item(id: 2, parent: 0),
+    new Item(id: 3, parent: 0),
+    new Item(id: 4, parent: 1),
+    new Item(id: 5, parent: 6),
+    new Item(id: 6, parent: 0),
 ];
 
 $builder = new TreeBuilder();
