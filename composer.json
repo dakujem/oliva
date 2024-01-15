@@ -26,6 +26,16 @@
       "Dakujem\\Oliva\\": "src/"
     }
   },
+  "scripts": {
+    "test": "@test:local",
+    "test:local": "@php vendor/nette/tester/src/tester tests -C --colors 1",
+    "test:ci": "tester tests"
+  },
+  "scripts-descriptions": {
+    "test": "Run application tests. (defaults to local tests)",
+    "test:local": "Run application tests with local configuration.",
+    "test:ci": "Run application tests, provide configuration options as needed."
+  },
   "extra": {
     "branch-alias": {
       "dev-trunk": "1.0.x-dev"
