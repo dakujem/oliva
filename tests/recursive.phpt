@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Seed;
+use Tester\Assert;
 use Tester\Environment;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -39,5 +40,5 @@ $tree = $builder->build(
     parent: fn(?Item $item) => $item?->parent,
 );
 
-                xdebug_break();
-$foo = 1;
+
+Assert::type(Node::class, $tree);

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\MaterializedPath\Support\Tree;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\TreeNodeContract;
+use Tester\Assert;
 use Tester\Environment;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -66,6 +68,10 @@ new Filter($it, Seed::omitRoot());
 
 $item = $tree->root()?->data();
 
+Assert::type(Tree::class, $tree);
+Assert::type(Node::class, $tree->root());
+Assert::null($tree->root()?->data());
+Assert::type(Item::class, Seed::first($tree->root()?->children())?->data());
 
 // rekalkulacia / presuny ?
 
