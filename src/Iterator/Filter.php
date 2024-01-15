@@ -8,7 +8,7 @@ use CallbackFilterIterator;
 use Dakujem\Oliva\Seed;
 
 /**
- * Filter tree iterator.
+ * Filter iterator.
  * To be used with tree traversal iterators or for filtering input data.
  *
  * Wraps the native callback filter iterator with improved interface (supporting arrays).
