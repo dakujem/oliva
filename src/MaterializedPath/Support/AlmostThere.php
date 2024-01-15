@@ -7,14 +7,14 @@ namespace Dakujem\Oliva\MaterializedPath\Support;
 use Dakujem\Oliva\TreeNodeContract;
 
 /**
- * A tree built from flat data.
+ * A wrapper structure containing a tree built from flat data as well as its shadow tree.
  *
  * This structure allows for data inspection, data correction or debugging
  * and is not directly intended to be used in applications.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
-class Tree
+class AlmostThere
 {
     public function __construct(
         private ?TreeNodeContract $root,

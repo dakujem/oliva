@@ -6,7 +6,7 @@ namespace Dakujem\Oliva\MaterializedPath;
 
 use Dakujem\Oliva\MaterializedPath\Support\Register;
 use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
-use Dakujem\Oliva\MaterializedPath\Support\Tree;
+use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
@@ -87,18 +87,18 @@ final class TreeBuilder
         callable $node,
         callable $vector,
     ): TreeNodeContract {
-        $root = $this->buildTree($input, $node, $vector)->root();
+        $root = $this->processInput($input, $node, $vector)->root();
         if (null === $root) {
             throw new RuntimeException('Corrupted input, no tree created.');
         }
         return $root;
     }
 
-    public function buildTree(
+    public function processInput(
         iterable $input,
         callable $node,
         callable $vector,
-    ): Tree {
+    ): AlmostThere {
         $shadowRoot = $this->buildShadowTree(
             $input,
             $node,
@@ -110,7 +110,7 @@ final class TreeBuilder
         $root = $shadowRoot->reconstructRealTree();
 
         // For edge case handling, return a structure containing the shadow root as well as the actual tree root.
-        return new Tree(
+        return new AlmostThere(
             root: $root,
             shadowRoot: $shadowRoot,
         );

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
-use Dakujem\Oliva\MaterializedPath\Support\Tree;
+use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Seed;
@@ -36,7 +36,7 @@ $data = [
 ];
 
 $builder = new TreeBuilder();
-$tree = $builder->buildTree(
+$tree = $builder->processInput(
     input: Seed::nullFirst($data),
     node: fn(?Item $item) => new Node($item),
     vector: TreeBuilder::fixed(
@@ -68,7 +68,7 @@ new Filter($it, Seed::omitRoot());
 
 $item = $tree->root()?->data();
 
-Assert::type(Tree::class, $tree);
+Assert::type(AlmostThere::class, $tree);
 Assert::type(Node::class, $tree->root());
 Assert::null($tree->root()?->data());
 Assert::type(Item::class, Seed::first($tree->root()?->children())?->data());
