@@ -8,6 +8,7 @@
 - [x] recursive tree builder
 - [ ] MP tree calculus
 - [ ] dox
+- [ ] fluent builder
 
 
 ---

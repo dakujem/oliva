@@ -19,23 +19,6 @@ A node without children is called a leaf.
 
 Read more on Wikipedia: [Tree (data structure)](https://en.wikipedia.org/wiki/Tree_(data_structure)).
 
-```php
-use Dakujem\Oliva\Node;
-
-$tree = new Node('root');
-$tree->addChild($child1 = new Node('first child'));
-$tree->addChild($child2 = new Node('second child'));
-$child1->setParent($tree);
-$child2->setParent($tree);
-$leaf = new Node('leaf od first node');
-$child1->addChild($leaf);
-$leaf->setParent($child1);
-```
-... yeah, this is not the most optimal way to build a tree.
-
-
-🚧 TODO
-
 
 ## Builders
 
@@ -150,7 +133,6 @@ use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Node;
 
 $data = [
-    // self_id, parent_id
     new Item(id: 0, parent: null),
     new Item(id: 1, parent: 0),
     new Item(id: 2, parent: 0),
@@ -207,6 +189,56 @@ $root = $builder->build(
 );
 ```
 
+
+## Manual tree building
+
+Using the low-level interface for building a tree:
+```php
+use Dakujem\Oliva\Node;
+
+$root = new Node('root');
+$root->addChild($child1 = new Node('first child'));
+$root->addChild($child2 = new Node('second child'));
+$child1->setParent($root);
+$child2->setParent($root);
+$leaf1 = new Node('leaf of the first child node');
+$child1->addChild($leaf1);
+$leaf1->setParent($child1);
+$leaf2 = new Node('another leaf of the first child node');
+$child1->addChild($leaf2);
+$leaf2->setParent($child1);
+```
+... yeah, this is not the most optimal way to build a tree.
+
+Using high-level interface for doing the same:
+```php
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Tree;
+
+$root = new Node('root');
+Tree::link(node: $child1 = new Node('first child'), parent: $root);
+Tree::link(node: $child2 = new Node('second child'), parent: $root);
+Tree::link(node: new Node('leaf of the first child node'), parent: $child1);
+Tree::link(node: new Node('another leaf of the first child node'), parent: $child1);
+```
+
+
+🚧 TODO fluent?
+```php
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Fluent\Proxy;
+
+$proxy = new Proxy(fn(mixed $item) => new Node($item));
+
+$proxy
+    ->node('root')
+        ->node('first child')
+            ->node('leaf of the first child node')->end()
+            ->leaf('another leaf of the first child node') // same as calling ->node(...)->end() above
+        ->node('second child');
+
+$root = $proxy->root();
+```
 
 
 ## Caveats
