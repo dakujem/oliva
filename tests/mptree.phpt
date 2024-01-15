@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Dakujem\Oliva\Iterator\Data;
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\TreeNodeContract;
 use Tester\Environment;
 
@@ -35,7 +35,7 @@ $data = [
 
 $builder = new TreeBuilder();
 $tree = $builder->buildTree(
-    input: Data::nullFirst($data),
+    input: Seed::nullFirst($data),
     node: fn(?Item $item) => new Node($item),
     vector: TreeBuilder::fixed(
         3,
@@ -61,8 +61,8 @@ foreach ($it as $key => $node) {
 
 //xdebug_break();
 
-new Filter($it, Data::omitNull());
-new Filter($it, Data::omitRoot());
+new Filter($it, Seed::omitNull());
+new Filter($it, Seed::omitRoot());
 
 $item = $tree->root()?->data();
 

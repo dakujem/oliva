@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Dakujem\Oliva\Iterator\Data;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Recursive\TreeBuilder;
+use Dakujem\Oliva\Seed;
 use Tester\Environment;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -33,7 +33,7 @@ $data = [
 $builder = new TreeBuilder();
 
 $tree = $builder->build(
-    input: Data::nullFirst($data),
+    input: Seed::nullFirst($data),
     node: fn(?Item $item) => new Node($item),
     self: fn(?Item $item) => $item?->id,
     parent: fn(?Item $item) => $item?->parent,

@@ -1,12 +1,12 @@
-# A refactor of dakujem/oliva-tree
+# A ~~refactor~~ reimplementaion of dakujem/oliva-tree
 
 ... after 8+ years
 
 
 - [x] filter
 - [x] iterating over tree without a real data root
-- [ ] recursive tree builder
-- [ ] calculus
+- [x] recursive tree builder
+- [ ] MP tree calculus
 - [ ] dox
 
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dakujem\Oliva\Iterator;
 
 use CallbackFilterIterator;
+use Dakujem\Oliva\Seed;
 
 /**
  * Filter tree iterator.
@@ -24,7 +25,7 @@ final class Filter extends CallbackFilterIterator
         callable $accept,
     ) {
         parent::__construct(
-            Data::iterator($input),
+            Seed::iterator($input),
             $accept,
         );
     }
