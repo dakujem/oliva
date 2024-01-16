@@ -24,6 +24,11 @@ interface TreeNodeContract
     public function children(): iterable;
 
     /**
+     * Discover whether the given node is one or the given key points to one of this node's children.
+     */
+    public function hasChild(TreeNodeContract|string|int $child): bool;
+
+    /**
      * Get a specific child, if possible.
      * Returns `null` when there is no such a child.
      */
@@ -34,11 +39,6 @@ interface TreeNodeContract
      * Returns `null` when the node is not a child.
      */
     public function childKey(TreeNodeContract $node): string|int|null;
-
-    /**
-     * Discover whether the given node is one or the given key points to one of this node's children.
-     */
-    public function hasChild(TreeNodeContract|string|int $child): bool;
 
     /**
      * Returns `true` if the node has no children, i.e. it is a leaf node.

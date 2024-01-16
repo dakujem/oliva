@@ -22,7 +22,7 @@ interface DataNodeContract
     public function data(): mixed;
 
     /**
-     * Set/assign new data to the node.
+     * Set/assign new data to the data node.
      */
     public function fill(mixed $data): self;
 }
