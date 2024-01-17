@@ -61,6 +61,25 @@ or it may mean that a node's ancestor IDs are `[1,2,3]`, `3` being the parent's 
 To enable all the different techniques, Oliva MPT `TreeBuilder` requires the user to pass a vector extractor function, e.g. `fn($item) => explode('.', $item->path)`.
 Oliva comes with two common-case extractor factories: `TreeBuilder::fixed()` and `TreeBuilder::delimited()`.
 
+The following tree will be used in the examples below:
+```
+[0]  (the root)
+|
++--[1]
+|  |
+|  +--[4]
+|  |
+|  +--[7]
+|
++--[6]
+|  |
+|  +--[5]
+|
++--[2]
+|
++--[3]
+```
+
 Simple example of a fixed-length MPT:
 ```php
 use Any\Item;
@@ -76,6 +95,7 @@ $data = [
     new Item(id: 4, path: '000000'),
     new Item(id: 5, path: '002000'),
     new Item(id: 6, path: '002'),
+    new Item(id: 7, path: '000001'),
 ];
 
 $builder = new TreeBuilder();
@@ -103,6 +123,7 @@ $data = [
     new Item(id: 4, path: '.0.0'),
     new Item(id: 5, path: '.2.0'),
     new Item(id: 6, path: '.2'),
+    new Item(id: 7, path: '.0.1'),
 ];
 
 $builder = new TreeBuilder();
@@ -116,10 +137,12 @@ $root = $builder->build(
 );
 ```
 
+>
 > 💡
 >
-> Since child nodes are be added to parents in the order they appear in the source data,
-> sorting the source collection by path prior to building the tree may be a good idea. 
+> Since child nodes are added to parents in the order they appear in the source data,
+> sorting the source collection by path prior to building the tree may be a good idea.
+>
 
 
 ## Recursive trees
@@ -140,6 +163,7 @@ $data = [
     new Item(id: 4, parent: 1),
     new Item(id: 5, parent: 6),
     new Item(id: 6, parent: 0),
+    new Item(id: 7, parent: 1),
 ];
 
 $builder = new TreeBuilder();
@@ -223,12 +247,15 @@ Tree::link(node: new Node('another leaf of the first child node'), parent: $chil
 ```
 
 
-🚧 TODO fluent?
+🚧 TODO fluent? does anybody actually use this? it's pretty much easier to just create an array, populate delimited paths and throw it at an MPT builder.
+ ----> make this into an issue to do later if anybody is interested
 ```php
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Fluent\Proxy;
 
-$proxy = new Proxy(fn(mixed $item) => new Node($item));
+$proxy = new Proxy(
+    node: fn(mixed $item) => new Node($item),
+);
 
 $proxy
     ->node('root')
