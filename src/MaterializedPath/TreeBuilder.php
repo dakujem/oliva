@@ -76,7 +76,7 @@ final class TreeBuilder
             }
             if (!is_string($path)) {
                 // TODO improve exceptions (index/path etc)
-                throw new LogicException('Invalid path returned.');
+                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
             }
             return str_split($path, $levelWidth);
         };
@@ -94,7 +94,7 @@ final class TreeBuilder
             }
             if (!is_string($path)) {
                 // TODO improve exceptions (index/path etc)
-                throw new LogicException('Invalid path returned.');
+                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
             }
             $path = trim($path, $delimiter);
             if ('' === $path) {
@@ -123,7 +123,7 @@ final class TreeBuilder
 
         // The actual tree nodes are not yet connected.
         // Reconstruct the tree using the shadow tree's structure.
-        $root = $shadowRoot->reconstructRealTree();
+        $root = $shadowRoot?->reconstructRealTree();
 
         // For edge case handling, return a structure containing the shadow root as well as the actual tree root.
         return new AlmostThere(
@@ -136,17 +136,11 @@ final class TreeBuilder
         iterable $input,
         callable $nodeFactory,
         callable $vectorExtractor,
-    ): ShadowNode {
+    ): ?ShadowNode {
         $register = new Register();
         foreach ($input as $inputIndex => $data) {
             // Create a node using the provided factory.
             $node = $nodeFactory($data, $inputIndex);
-
-            // Enable skipping particular data.
-            // TODO use input filter instead
-//            if (null === $node) {
-//                continue;
-//            }
 
             // Check for consistency.
             if (!$node instanceof MovableNodeContract) {

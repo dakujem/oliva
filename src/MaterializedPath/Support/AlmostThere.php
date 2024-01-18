@@ -18,7 +18,7 @@ class AlmostThere
 {
     public function __construct(
         private ?TreeNodeContract $root,
-        private ShadowNode $shadowRoot,
+        private ?ShadowNode $shadowRoot,
     ) {
     }
 
@@ -36,7 +36,7 @@ class AlmostThere
      * because there may be nodes that are not connected to the root due to inconsistent input data.
      * These nodes are present and reachable within the shadow tree.
      */
-    public function shadow(): ShadowNode
+    public function shadow(): ?ShadowNode
     {
         return $this->shadowRoot;
     }

@@ -1,8 +1,8 @@
 # Oliva
 
 Flexible tree structure,  
-materialized path trees,  
-recursive trees and builders,  
+materialized path trees, recursive trees,
+tree builders,
 tree traversal iterators,  
 filter iterator.
 
@@ -169,11 +169,16 @@ $root = $builder->build(
 >
 > 💡
 >
-> Since child nodes are added to parents in the order they appear in the source data,
+> Since child nodes are added to parents sequentially (i.e. without specific keys)
+> in the order they appear in the source data,
 > sorting the source collection by path _prior_ to building the tree may be a good idea.
 >
 > If sorting of siblings is needed _after_ a tree has been built,
-> one of the provided iterators can be used to traverse and modify the tree.
+> `LevelOrderTraversal` can be used to traverse and modify the tree.
+>
+> The same is true for cases where the children need to be keyed by specific keys.
+> Use `LevelOrderTraversal`, remove the children, then sort them and/or calculate their keys
+> and add them back under the new keys and/or in the new order.
 >
 
 
@@ -480,13 +485,8 @@ All Oliva traversal iterators accept a key callable and a starting vector (a pre
 > 
 
 
-## Caveats
+## Cookbook
 
->
-> This section is very relevant if migrating from the previous library ([`oliva/tree`](https://github.com/dakujem/oliva-tree)).
->
-> It may be useful for others too, it provides solutions to real-world scenarios.
-> 
 
 ### Materialized path tree without root data
 
@@ -574,6 +574,25 @@ $root = $builder->build(
 ```
 
 If a node's parent matches the value, it is considered the root node.
+
+
+## Migrating from the old oliva/tree library
+
+**Builders and iterators**
+
+If migrating from the previous library ([`oliva/tree`](https://github.com/dakujem/oliva-tree)), the most common problems are caused by
+- the builders not automatically adding an empty root node
+- the iterators iterating over root node
+
+For both, see "Materialized path tree without root data" and "Recursive tree without root data" sections above.
+
+**Node classes**
+
+Neither magic props proxying nor array access of the `Oliva\Utils\Tree\Node\Node` are supported.  
+Migrating to the new `Dakujem\Oliva\Node` class is recommended instead of attempting to recreate the old behaviour.
+
+The `Dakujem\Oliva\Node` is very similar to `Oliva\Utils\Tree\Node\SimpleNode`, however,
+migrating from that one should be trivial (migrate the getter/setter usage).
 
 
 ## Testing

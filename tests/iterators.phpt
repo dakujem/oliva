@@ -6,6 +6,7 @@ use Dakujem\Oliva\DataNodeContract;
 use Dakujem\Oliva\Iterator\LevelOrderTraversal;
 use Dakujem\Oliva\Iterator\PostOrderTraversal;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\Iterator\Support\Counter;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
 use Tester\Assert;
@@ -216,5 +217,16 @@ $expected = [
 ];
 Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
+
+$counter = new Counter();
+Assert::same(0, $counter->current());
+Assert::same(0, $counter->touch());
+Assert::same(1, $counter->touch());
+Assert::same(2, $counter->current());
+Assert::same(3, $counter->next());
+Assert::same(3, $counter->current());
+
+$counter = new Counter(5);
+Assert::same(5, $counter->current());
 
 //$root->addChild(new)
