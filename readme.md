@@ -35,9 +35,10 @@ Oliva provides _tree builders_, classes that construct structured trees from uns
 The data is usually in form of iterable collections, typically a result of SQL queries, API calls, and such.
 
 ```php
-$tree = (new TreeBuilder)->build(
-    input: $anyDataCollection,
-    node: fn(mixed $data) => new Node($data),    // This is a node factory.
+$tree = (new TreeBuilder(
+    node: fn(mixed $data) => new Node($data), // A node factory.
+))->build(
+    input: $anyDataCollection,                // An iterable collection to build a tree from.
 );
 ```
 
