@@ -7,7 +7,7 @@ Flexible tree structures, materialized path trees, tree traversal iterators.
 >
 
 
-This package is a modern reimplementation of [`dakujem/oliva-tree`](https://github.com/dakujem/oliva-tree).
+This package is a modern reimplementation of [`oliva/tree`](https://github.com/dakujem/oliva-tree).
 
 
 ## Tree
@@ -331,8 +331,9 @@ Tree::linkChildren(node: $root = new Node('root'), children: [
 
 ## Iterators
 
-Oliva provides iterators for tree traversal.
-The iterators will iterate over all the tree's nodes, including the root, in a specific order.
+Oliva provides iterators for tree traversal and a filter iterator.
+
+The traversal iterators will iterate over **all** the tree's nodes, including the root, in a specific order.
 
 **Depth-first search**
 - `Iterator\PreOrderTraversal` pre-order traversal
@@ -355,10 +356,11 @@ foreach ($root as $node) {
 }
 ```
 
-Finally, `Iterator\Filter` may be used for filtering either the input data or tree nodes.
+Finally, the filter iterator `Iterator\Filter` may be used for filtering either the input data or tree nodes.
 ```php
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Seed;
 
 // Filter the input before building a tree.
 $filteredCollection = new Filter($sourceCollection, fn(Item $item): bool => $item->id > 5);
@@ -366,19 +368,201 @@ $root = (new TreeBuilder( ... ))->build(
     $filteredCollection,
 );
 
-// Iterate ober leafs only.
+// Iterate over leafs only.
 $filter = new Filter($root, fn(Node $node): bool => $node->isLeaf());
 foreach($filter as $node){
     // ...
 }
+
+// Find the first node that matches a criterion (data with ID = 42).
+$filter = new Filter($root, fn(Node $node): bool => $node->data()?->id === 42);
+$node = Seed::first(new Filter(
+    input: $root,
+    accept: fn(Node $node): bool => $node->data()?->id === 42),
+);
 ```
+
+>
+> 💡
+>
+> Traversals may be used to decorate nodes or even alter the trees.  
+> Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
+> otherwise you may experience unexpected.
+>
+
+
+### Node keys
+
+Normally, the keys will increment during a traversal (using any traversal iterator).
+```php
+use Dakujem\Oliva\Node;
+
+$root = new Node( ... );
+
+foreach ($root as $key => $node) {
+    // The keys will increment 0, 1, 2, 3, ... and so on.
+}
+```
+
+It is possible to alter the key sequence using a key callable.  
+This example generates a delimited materialized path:
+```php
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\TreeNodeContract;
+
+$iterator = new PreOrderTraversal(
+    node: $root,
+    key: fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string => '.' . implode('.', $vector),
+    startingVector: [],
+);
+$result = iterator_to_array($iterator);
+//[
+//    '.' => 'F',
+//    '.0' => 'B',
+//    '.0.0' => 'A',
+//    '.0.1' => 'D',
+//    '.0.1.0' => 'C',
+//    '.0.1.1' => 'E',
+//    '.1' => 'G',
+//    '.1.0' => 'I',
+//    '.1.0.0' => 'H',
+//];
+```
+
+This example indexes the nodes by an ID found in the data:
+```php
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
+
+$iterator = new PreOrderTraversal(
+    node: $root,
+    key: fn(TreeNodeContract $node): int => $node->data()->id,
+);
+```
+
+The signature of the key callable is `fn(TreeNodeContract $node, array $vector, int $seq, int $counter): string|int`, where
+- `$node` is the current node
+- `$vector` is the node's vector in a tree 
+    - it is a path from the root to the node with **child indexes** being the vector's elements
+    - vector of a root is empty `[]` (or equal to `$startingVector` if passed to the iterator constructor)
+    - current node's index within its parent's children is the last element of the vector
+- `$seq` is the current sibling numerator (first child is `0`, second child is `1`, and so on)
+- `$counter` is the default iteration numerator that increments by 1 with each node (0, 1, 2, ...)
+    - without a key callable, this is the key sequence
+
+All Oliva traversal iterators accept a key callable and a starting vector (a prefix to the `$vector`).
+
+> 
+> 💡
+> 
+> Be careful with `iterator_to_array` when using key callable, because colliding keys will be overwritten without a warning.  
+> The key callable SHOULD generate unique keys.
+> 
 
 
 ## Caveats
 
-🚧 TODO
+>
+> This section is very relevant if migrating from the previous library ([`oliva/tree`](https://github.com/dakujem/oliva-tree)).
+>
+> It may be useful for others too, it provides solutions to real-world scenarios.
+> 
 
-Caveats:
-- no root in data
-- null data rows
+### MPT builder
 
+There may be situations where the source data does not contain a root.
+This may be done when storing article comments, menus or forum posts and consider the parent object (the article, the thread or the site) to be the root.
+
+One of the solutions is to prepend an empty data element and then ignore it during iterations if it is not desired to iterate over the root.
+
+Observe using `Seed` helper class:
+```php
+use  Dakujem\Oliva\MaterializedPath;
+use Dakujem\Oliva\Seed;
+
+$source = Sql::getMeTheCommentsFor($article);
+
+// When prepending `null`, care must be taken that both the extractor and the factory are able to cope with `null` values.
+// Note the use of `?` nullable type hint indicator and null-safe `?->` operator.
+$factory = fn(?Item $item) => new Node($item);
+$pathExtractor = fn(?Item $item) => $item?->path;
+
+$builder = new MaterializedPath\TreeBuilder( ... );
+$root = $builder->build(
+    input: Seed::nullFirst($source),       // `null` is prepended to the data
+);
+
+foreach(Seed::omitNull($root) as $node) {  // the node with `null` data is omitted from the iteration
+    display($node);
+}
+```
+
+We could also use `Seed::merged` to prepend an item with fabricated root data, but then `Seed::omitRoot` must be used omit the root instead:
+```php
+use  Dakujem\Oliva\MaterializedPath;
+use Dakujem\Oliva\Seed;
+
+$source = Sql::getMeTheCommentsFor($article);
+
+// We need not take care of null values anymore.
+$factory = fn(Item $item) => new Node($item);
+$pathExtractor = fn(Item $item) => $item->path;
+
+$builder = new MaterializedPath\TreeBuilder( ... );
+$root = $builder->build(
+    input: Seed::merged([new Item(id: 0, path: '')], $source),
+);
+
+foreach(Seed::omitRoot($root) as $node) {  // the root node is omitted from the iteration
+    display($node);
+}
+```
+
+### Recursive builder
+
+Similar situation may happen when using the recursive builder on a subtree, when the root node of the subtree has a non-null parent.
+
+This is very simply solved by passing the `$root` argument to the tree builder.
+
+```php
+use Any\Item;
+use Dakujem\Oliva\Recursive\TreeBuilder;
+use Dakujem\Oliva\Node;
+
+$collection = [
+    new Item(id: 100, parent: 99),                // Note that no data with ID 99 is present.
+    new Item(id: 101, parent: 100),
+    new Item(id: 102, parent: 100),
+    new Item(id: 103, parent: 100),
+    new Item(id: 104, parent: 101),
+    new Item(id: 105, parent: 106),
+    new Item(id: 106, parent: 100),
+    new Item(id: 107, parent: 101),
+];
+
+$builder = new TreeBuilder();
+$root = $builder->build(
+    input: $collection,
+    node: fn(Item $item) => new Node($item),
+    self: fn(Item $item) => $item->id,
+    parent: fn(Item $item) => $item->parent,
+    root: 99,                                     // Here we indicate that the parent of the root node is 99.
+);
+```
+
+If a node's parent matches the value, it is considered the root node.
+
+
+## Testing
+
+Run unit tests using the following command:
+
+```sh
+composer test
+```
+
+
+## Contributing
+
+Ideas or contribution is welcome. Please send a PR or file an issue.
+
+And if you happen to like the library, spread the word 🙏.
