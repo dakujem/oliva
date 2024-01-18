@@ -10,7 +10,7 @@ use LogicException;
 
 /**
  * Simple tree builder.
- * Wraps data that is already structured into tree node classes.
+ * Wraps data that is already structured as a tree into tree node classes.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
@@ -21,14 +21,14 @@ class TreeBuilder
         callable $node,
         callable $children,
     ): TreeNodeContract {
-        return $this->buildNode(
+        return $this->wrapNode(
             data: $data,
             nodeFactory: $node,
             childrenExtractor: $children,
         );
     }
 
-    public function buildNode(
+    private function wrapNode(
         mixed $data,
         callable $nodeFactory,
         callable $childrenExtractor,
@@ -48,7 +48,7 @@ class TreeBuilder
             throw new LogicException('Children data extractor must return an iterable collection containing children data.');
         }
         foreach ($childrenData ?? [] as $key => $childData) {
-            $child = $this->buildNode(
+            $child = $this->wrapNode(
                 data: $childData,
                 nodeFactory: $nodeFactory,
                 childrenExtractor: $childrenExtractor,
