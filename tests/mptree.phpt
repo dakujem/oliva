@@ -35,14 +35,15 @@ $data = [
     new Item(8, '008'),
 ];
 
-$builder = new TreeBuilder();
-$tree = $builder->processInput(
-    input: Seed::nullFirst($data),
+$builder = new TreeBuilder(
     node: fn(?Item $item) => new Node($item),
     vector: TreeBuilder::fixed(
         3,
         fn(?Item $item) => $item?->path,
     ),
+);
+$tree = $builder->processInput(
+    input: Seed::nullFirst($data),
 );
 
 $it = new PreOrderTraversal($tree->root(), fn(

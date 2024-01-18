@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\MaterializedPath;
 
+use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MaterializedPath\Support\Register;
 use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
-use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
@@ -25,26 +25,48 @@ use RuntimeException;
  *
  * Fixed path variant example:
  * ```
- * $root = (new TreeBuilder())->build(
- *     $myItemCollection,
+ * $builder = new TreeBuilder(
  *     fn(MyItem $item) => new Node($item),
  *     TreeBuilder::fixed(3, fn(MyItem $item) => $item->path),
  * );
+ * $root = $builder->build( $myItemCollection );
  * ```
  *
  * Delimited path variant example:
  * ```
- * $root = (new TreeBuilder())->build(
- *     $myItemCollection,
+ * $builder = new TreeBuilder(
  *     fn(MyItem $item) => new Node($item),
  *     TreeBuilder::delimited('.', fn(MyItem $item) => $item->path),
  * );
+ * $root = $builder->build( $myItemCollection );
  * ```
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class TreeBuilder
 {
+    /**
+     * Node factory,
+     * signature `fn(mixed $data): MovableNodeContract`.
+     * @var callable
+     */
+    private $node;
+
+    /**
+     * Extractor of the node vector,
+     * signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node): array`.
+     * @var callable
+     */
+    private $vector;
+
+    public function __construct(
+        callable $node,
+        callable $vector,
+    ) {
+        $this->node = $node;
+        $this->vector = $vector;
+    }
+
     public static function fixed(int $levelWidth, callable $accessor): callable
     {
         return function (mixed $data) use ($levelWidth, $accessor): array {
@@ -82,27 +104,21 @@ final class TreeBuilder
         };
     }
 
-    public function build(
-        iterable $input,
-        callable $node,
-        callable $vector,
-    ): TreeNodeContract {
-        $root = $this->processInput($input, $node, $vector)->root();
+    public function build(iterable $input): TreeNodeContract
+    {
+        $root = $this->processInput($input)->root();
         if (null === $root) {
             throw new RuntimeException('Corrupted input, no tree created.');
         }
         return $root;
     }
 
-    public function processInput(
-        iterable $input,
-        callable $node,
-        callable $vector,
-    ): AlmostThere {
+    public function processInput(iterable $input): AlmostThere
+    {
         $shadowRoot = $this->buildShadowTree(
             $input,
-            $node,
-            $vector,
+            $this->node,
+            $this->vector,
         );
 
         // The actual tree nodes are not yet connected.

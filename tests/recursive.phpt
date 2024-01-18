@@ -31,13 +31,14 @@ $data = [
     new Item(6, 5),
 ];
 
-$builder = new TreeBuilder();
-
-$tree = $builder->build(
-    input: Seed::nullFirst($data),
+$builder = new TreeBuilder(
     node: fn(?Item $item) => new Node($item),
     self: fn(?Item $item) => $item?->id,
     parent: fn(?Item $item) => $item?->parent,
+);
+
+$tree = $builder->build(
+    input: Seed::nullFirst($data),
 );
 
 

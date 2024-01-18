@@ -6,6 +6,7 @@ namespace Dakujem\Oliva\Recursive;
 
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
+use InvalidArgumentException;
 use LogicException;
 
 /**
@@ -15,41 +16,75 @@ use LogicException;
  *
  * Example for collections containing items with `id` and `parent` props, the root being the node with `null` parent:
  * ```
- * $root = (new TreeBuilder())->build(
- *     $myItemCollection,
+ * $builder = new TreeBuilder(
  *     fn(MyItem $item) => new Node($item),
- *     TreeBuilder::prop('id'),
- *     TreeBuilder::prop('parent'),
+ *     fn(MyItem $item) => $item->id,
+ *     fn(MyItem $item) => $item->parent,
  * );
+ * $root = $builder->build( $myItemCollection );
  * ```
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class TreeBuilder
 {
-    public static function prop(string $name): callable
-    {
-        return fn(object $item) => $item->{$name} ?? null;
-    }
+    /**
+     * Node factory,
+     * signature `fn(mixed $data): MovableNodeContract`.
+     * @var callable
+     */
+    private $node;
 
-    public static function attr(string $name): callable
-    {
-        return fn(array $item) => $item[$name] ?? null;
-    }
+    /**
+     * Extractor of the self reference,
+     * signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node): string|int`.
+     * @var callable
+     */
+    private $self;
 
-    public function build(
-        iterable $input,
+    /**
+     * Extractor of the parent reference,
+     * signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node): string|int|null`.
+     * @var callable
+     */
+    private $parent;
+
+    /**
+     * Callable that detects the root node.
+     * Signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node, string|int|null $parentRef, string|int $selfRef): bool`.
+     * @var callable
+     */
+    private $root;
+
+    public function __construct(
         callable $node,
         callable $self,
         callable $parent,
-        string|int|null $root = null,
-    ): TreeNodeContract {
+        string|int|callable|null $root = null,
+    ) {
+        $this->node = $node;
+        $this->self = $self;
+        $this->parent = $parent;
+        if (null === $root || is_string($root) || is_int($root)) {
+            // By default, the root node is detected by having the parent ref equal to `null`.
+            // By passing in a string or an integer, the root node will be detected by comparing that value to the node's parent value.
+            // For custom "is root" detector, use a callable.
+            $this->root = fn($data, $inputIndex, $node, $parentRef, $selfRef): bool => $parentRef === $root;
+        } elseif (is_callable($root)) {
+            $this->root = $root;
+        } else {
+            throw new InvalidArgumentException();
+        }
+    }
+
+    public function build(iterable $input): TreeNodeContract
+    {
         [$root] = $this->processData(
             input: $input,
-            nodeFactory: $node,
-            selfRefExtractor: $self,
-            parentRefExtractor: $parent,
-            rootRef: $root,
+            nodeFactory: $this->node,
+            selfRefExtractor: $this->self,
+            parentRefExtractor: $this->parent,
+            isRoot: $this->root,
         );
         return $root;
     }
@@ -59,13 +94,23 @@ final class TreeBuilder
         callable $nodeFactory,
         callable $selfRefExtractor,
         callable $parentRefExtractor,
-        string|int|null $rootRef = null,
+        callable $isRoot,
     ): array {
+        //
+        // This algo works in two passes.
+        //
+        // The first pass indexes the data and builds a map of nodes and their children.
+        // The second pass recursively connects all that indexed data starting from the root node.
+        //
+
         /** @var array<string|int, array<int, string|int>> $childRegister */
         $childRegister = [];
         /** @var array<string|int, MovableNodeContract> $nodeRegister */
         $nodeRegister = [];
-//        $root = null;
+        $rootFound = false;
+        $rootRef = null;
+
+        // The data indexing pass.
         foreach ($input as $inputIndex => $data) {
             // Create a node using the provided factory.
             $node = $nodeFactory($data, $inputIndex);
@@ -85,8 +130,10 @@ final class TreeBuilder
             }
             $nodeRegister[$self] = $node;
 
-            // No parent, when this node is the root.
-            if ($rootRef === $self) {
+            // When this node is the root, it has no parent.
+            if (!$rootFound && $isRoot($data, $inputIndex, $node, $parent, $self)) {
+                $rootRef = $self;
+                $rootFound = true;
                 continue;
             }
 
@@ -95,6 +142,13 @@ final class TreeBuilder
             }
             $childRegister[$parent][] = $self;
         }
+
+        if (!$rootFound) {
+            // TODO improve exceptions
+            throw new LogicException('No root node found.');
+        }
+
+        // The tree reconstruction pass.
         $this->connectNode(
             $nodeRegister,
             $childRegister,
@@ -112,8 +166,11 @@ final class TreeBuilder
      * @param array<string|int, MovableNodeContract> $nodeRegister
      * @param array<string|int, array<int, string|int>> $childRegister
      */
-    private function connectNode(array $nodeRegister, array $childRegister, string|int|null $ref): void
-    {
+    private function connectNode(
+        array $nodeRegister,
+        array $childRegister,
+        string|int|null $ref,
+    ): void {
         $parent = $nodeRegister[$ref];
         foreach ($childRegister[$ref] ?? [] as $childRef) {
             $child = $nodeRegister[$childRef];

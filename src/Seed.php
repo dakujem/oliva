@@ -14,7 +14,8 @@ use IteratorIterator;
  *
  * Contains:
  * - methods that produce or adapt iterable data and iterators
- * - methods that produce filtering callables to be used with the Filter iterator
+ *  - methods that produce filtering callables to be used with the Filter iterator
+ *  - methods that produce extractor callables to be used with tree builders
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
@@ -72,6 +73,24 @@ final class Seed
     public static function omitRoot(): callable
     {
         return fn(TreeNodeContract $node): bool => !$node->isRoot();
+    }
+
+    /**
+     * Create an extractor that extracts a property of objects.
+     *  Note: Abbreviation of "property".
+     */
+    public static function prop(string $name, mixed $default = null): callable
+    {
+        return fn(object $item) => $item->{$name} ?? $default;
+    }
+
+    /**
+     * Create an extractor that extracts a member of arrays.
+     * Note: Abbreviation of "attribute".
+     */
+    public static function attr(string|int $name, mixed $default = null): callable
+    {
+        return fn(array $item) => $item[$name] ?? $default;
     }
 
     /**
