@@ -9,6 +9,8 @@
 - [ ] MP tree calculus
 - [ ] dox
 - [ ] fluent builder
+- [ ] invert builder api (use constructors)
+- [ ] recursive buidler `$root` param into extractor / comparator callable
 
 
 ---

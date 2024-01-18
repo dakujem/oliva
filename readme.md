@@ -19,21 +19,26 @@ A node without children is called a leaf.
 
 Read more on Wikipedia: [Tree (data structure)](https://en.wikipedia.org/wiki/Tree_(data_structure)).
 
+Oliva trees consist of node instances implementing `TreeNodeContract`.
+```php
+use Dakujem\Oliva\TreeNodeContract;
+```
+
 
 ## Builders
 
 Oliva provides _tree builders_, classes that construct structured trees from unstructured data.
-The data is usually in form of iterable collections, typically a result of SQL queries and such.
+The data is usually in form of iterable collections, typically a result of SQL queries, API calls, and such.
 
 ```php
 $tree = (new TreeBuilder)->build(
-    $anyDataCollection,
-    fn(mixed $data) => new Node($data),
+    input: $anyDataCollection,
+    node: fn(mixed $data) => new Node($data),    // This is a node factory.
 );
 ```
 
-The builders are flexible and allow to create any node instances via the _node factory_ callable.  
-The simplest one may look like this
+The builders are flexible and allow to create any node instances via the _node factory_ parameter.  
+The simplest factory may look like this
 ```php
 fn(mixed $data) => new \Dakujem\Oliva\Node($data);
 ```
@@ -42,6 +47,21 @@ fn(mixed $data) => new \Dakujem\Oliva\Node($data);
 ```php
 fn(mixed $anyItem) => new MyNode(MyTransformer::transform($anyItem)),
 ```
+
+Anything _callable_ may be a node factory, as long as it returns a class instance implementing `\Dakujem\Oliva\MovableNodeContract`.
+```php
+use Dakujem\Oliva\MovableNodeContract;
+```
+
+>
+> 💡
+>
+> The full signature of the node factory callable is `fn(mixed $data, mixed $dataIndex): MovableNodeContract`.  
+> That means the keys (indexes) of the input collection may also be used for node construction.
+>
+
+Each of the builders also requires _extractors_, described below,
+callables that provide the builder with information about the tree structure.
 
 
 ## Materialized path trees
@@ -86,8 +106,8 @@ use Any\Item;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
-// The input data may be a result of an SQL query or ny other iterable collection.
-$data = [
+// The input data may be a result of an SQL query or any other iterable collection.
+$collection = [
     new Item(id: 0, path: ''), // the root
     new Item(id: 1, path: '000'),
     new Item(id: 2, path: '001'),
@@ -100,7 +120,7 @@ $data = [
 
 $builder = new TreeBuilder();
 $root = $builder->build(
-    input: $data,
+    input: $collection,
     node: fn(Item $item) => new Node($item),      // How to create a node.
     vector: TreeBuilder::fixed(                   // How to extract path vector.
         levelWidth: 3,
@@ -115,7 +135,7 @@ use Any\Item;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
-$data = [
+$collection = [
     new Item(id: 0, path: null), // the root
     new Item(id: 1, path: '.0'),
     new Item(id: 2, path: '.1'),
@@ -128,7 +148,7 @@ $data = [
 
 $builder = new TreeBuilder();
 $root = $builder->build(
-    input: $data,
+    input: $collection,
     node: fn(Item $item) => new Node($item),      // How to create a node.
     vector: TreeBuilder::delimited(               // How to extract path vector.
         delimiter: '.',
@@ -141,7 +161,10 @@ $root = $builder->build(
 > 💡
 >
 > Since child nodes are added to parents in the order they appear in the source data,
-> sorting the source collection by path prior to building the tree may be a good idea.
+> sorting the source collection by path _prior_ to building the tree may be a good idea.
+>
+> If sorting of siblings is needed _after_ a tree has been built,
+> one of the provided iterators can be used to traverse and modify the tree.
 >
 
 
@@ -155,7 +178,7 @@ use Any\Item;
 use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Node;
 
-$data = [
+$collection = [
     new Item(id: 0, parent: null),
     new Item(id: 1, parent: 0),
     new Item(id: 2, parent: 0),
@@ -168,13 +191,24 @@ $data = [
 
 $builder = new TreeBuilder();
 $root = $builder->build(
-    input: $data,
-    node: fn(Item $item) => new Node($item), // How to create a node.
-    self: fn(Item $item) => $item->id,       // How to get ID of self.
-    parent: fn(Item $item) => $item->parent, // How to get parent ID.
-    root: null,                              // How to tell the root node (parent is `null`)
+    input: $collection,
+    node: fn(Item $item) => new Node($item),      // How to create a node.
+    self: fn(Item $item) => $item->id,            // How to get ID of self.
+    parent: fn(Item $item) => $item->parent,      // How to get parent ID.
+    root: null,                                   // The root node's parent value.
 );
 ```
+
+Above, `self` and `parent` parameters expect extractors with signature
+`fn(mixed $data, mixed $dataIndex, TreeNodeContract $node): string|int`,  
+while `root` expects a _value_ of the root node's parent.
+The node with this parent value will be returned.
+
+>
+> The most natural case for `root` is `null` because nodes without a parent are considered to be root nodes.
+> The value can be changed to `0`, `""` or whatever else is suitable for the particular dataset.  
+> This is useful when building a subtree.
+>
 
 
 ## Wrapping JSON or arrays
@@ -189,34 +223,68 @@ use Dakujem\Oliva\Node;
 // $json = (new External\ApiConnector())->call('getJsonData');
 // $data = json_decode($json);
 
-$data = [
-    [
-        'attributes' => [ ... ],
-        'children' => [
-            [
-                'attributes' => [ ... ],
-                'children' => [],
-            ]
+$rawData = [
+    'children' => [
+        [
+            'attributes' => [ ... ],
+            'children' => [
+                [
+                    'attributes' => [ ... ],
+                    'children' => [],
+                ]
+            ],
         ],
-    ],
-    [
-        'attributes' => [ ... ],
-        'children' => [ ... ],
+        [
+            'attributes' => [ ... ],
+            'children' => [ ... ],
+        ],
     ],
 ];
 
 $builder = new TreeBuilder();
 $root = $builder->build(
-    input: $data,
-    node: fn(array $item) => new Node($item),                   // How to create a node.
-    children: fn(array $item):array => $item['children'] ?? [], // How to extract children.
+    input: $rawData,
+    node: function(array $item) {                                // How to create a node.
+        unset($item['children']);
+        return new Node($item);
+    },                   
+    children: fn(array $item):array => $item['children'] ?? [],  // How to extract children.
 );
 ```
+
+Above, `children` expects an extractor with signature `fn(mixed $data, TreeNodeContract $node): ?iterable`.
+
+>
+> 💡
+> 
+> Remember, it is up to the integrator to construct the tree nodes.
+> Any transformation can be done with the data, as long as a node implementing the `MovableNodeContract` is returned.
+>
 
 
 ## Manual tree building
 
-Using the low-level interface for building a tree:
+
+Using a manual builder:
+```php
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Simple\NodeBuilder;
+
+$proxy = new NodeBuilder(
+    node: fn(mixed $item) => new Node($item),
+);
+
+$root = 
+    $proxy->node('root', [
+        $proxy->node('first child', [
+            $proxy->node('leaf of the first child node'),
+            $proxy->node('another leaf of the first child node'),
+        ]),
+        $proxy->node('second child'), 
+    ]);
+```
+
+Using the low-level node interface (`MovableNodeContract`) for building a tree:
 ```php
 use Dakujem\Oliva\Node;
 
@@ -234,7 +302,7 @@ $leaf2->setParent($child1);
 ```
 ... yeah, this is not the most optimal way to build a tree.
 
-Using high-level interface for doing the same:
+Using high-level manipulator (`Tree`) for doing the same:
 ```php
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Tree;
@@ -247,25 +315,6 @@ Tree::link(node: new Node('another leaf of the first child node'), parent: $chil
 ```
 
 
-🚧 TODO fluent? does anybody actually use this? it's pretty much easier to just create an array, populate delimited paths and throw it at an MPT builder.
- ----> make this into an issue to do later if anybody is interested
-```php
-use Dakujem\Oliva\Node;
-use Dakujem\Oliva\Fluent\Proxy;
-
-$proxy = new Proxy(
-    node: fn(mixed $item) => new Node($item),
-);
-
-$proxy
-    ->node('root')
-        ->node('first child')
-            ->node('leaf of the first child node')->end()
-            ->leaf('another leaf of the first child node') // same as calling ->node(...)->end() above
-        ->node('second child');
-
-$root = $proxy->root();
-```
 
 
 ## Caveats
