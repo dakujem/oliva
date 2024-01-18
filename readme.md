@@ -217,7 +217,7 @@ In case the data is already structured as tree data, a simple wrapper may be use
 
 ```php
 use Any\Item;
-use Dakujem\Oliva\Simple\TreeBuilder;
+use Dakujem\Oliva\Simple\TreeWrapper;
 use Dakujem\Oliva\Node;
 
 // $json = (new External\ApiConnector())->call('getJsonData');
@@ -241,15 +241,14 @@ $rawData = [
     ],
 ];
 
-$builder = new TreeBuilder();
-$root = $builder->build(
-    input: $rawData,
+$builder = new TreeWrapper(
     node: function(array $item) {                                // How to create a node.
         unset($item['children']);
         return new Node($item);
     },                   
     children: fn(array $item):array => $item['children'] ?? [],  // How to extract children.
 );
+$root = $builder->wrap($rawData);
 ```
 
 Above, `children` expects an extractor with signature `fn(mixed $data, TreeNodeContract $node): ?iterable`.
@@ -476,7 +475,7 @@ One of the solutions is to prepend an empty data element and then ignore it duri
 
 Observe using `Seed` helper class:
 ```php
-use  Dakujem\Oliva\MaterializedPath;
+use Dakujem\Oliva\MaterializedPath;
 use Dakujem\Oliva\Seed;
 
 $source = Sql::getMeTheCommentsFor($article);
@@ -498,7 +497,7 @@ foreach(Seed::omitNull($root) as $node) {  // the node with `null` data is omitt
 
 We could also use `Seed::merged` to prepend an item with fabricated root data, but then `Seed::omitRoot` must be used omit the root instead:
 ```php
-use  Dakujem\Oliva\MaterializedPath;
+use Dakujem\Oliva\MaterializedPath;
 use Dakujem\Oliva\Seed;
 
 $source = Sql::getMeTheCommentsFor($article);

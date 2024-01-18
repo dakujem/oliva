@@ -13,9 +13,13 @@ use LogicException;
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
-class NodeBuilder
+final class NodeBuilder
 {
-    /** @var callable */
+    /**
+     * Node factory,
+     * signature `fn(mixed $data): MovableNodeContract`.
+     * @var callable
+     */
     private $factory;
 
     public function __construct(

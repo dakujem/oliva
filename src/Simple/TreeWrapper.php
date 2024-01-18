@@ -14,17 +14,36 @@ use LogicException;
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
-class TreeBuilder
+final class TreeWrapper
 {
-    public function build(
-        mixed $data,
+    /**
+     * Node factory,
+     * signature `fn(mixed $data): MovableNodeContract`.
+     * @var callable
+     */
+    private $factory;
+
+    /**
+     * Extractor of children iterable,
+     * signature `fn(mixed $data, TreeNodeContract $node): ?iterable`.
+     * @var callable
+     */
+    private $childrenExtractor;
+
+    public function __construct(
         callable $node,
         callable $children,
-    ): TreeNodeContract {
+    ) {
+        $this->factory = $node;
+        $this->childrenExtractor = $children;
+    }
+
+    public function wrap(mixed $data): TreeNodeContract
+    {
         return $this->wrapNode(
             data: $data,
-            nodeFactory: $node,
-            childrenExtractor: $children,
+            nodeFactory: $this->factory,
+            childrenExtractor: $this->childrenExtractor,
         );
     }
 
