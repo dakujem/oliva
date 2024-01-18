@@ -331,7 +331,47 @@ Tree::linkChildren(node: $root = new Node('root'), children: [
 
 ## Iterators
 
-🚧 TODO
+Oliva provides iterators for tree traversal.
+The iterators will iterate over all the tree's nodes, including the root, in a specific order.
+
+**Depth-first search**
+- `Iterator\PreOrderTraversal` pre-order traversal
+- `Iterator\PostOrderTraversal` post-order traversal
+
+**Breadth-first search**
+- `Iterator\LevelOrderTraversal` level-order traversal
+
+If unsure what the above means, read more about [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
+
+If the order of traversal, is not important, a `Node` instance can be iterated over:
+
+```php
+use Dakujem\Oliva\Node;
+
+$root = new Node( ... );
+
+foreach ($root as $node) {
+    // do something useful with the nodes
+}
+```
+
+Finally, `Iterator\Filter` may be used for filtering either the input data or tree nodes.
+```php
+use Dakujem\Oliva\Iterator\Filter;
+use Dakujem\Oliva\Node;
+
+// Filter the input before building a tree.
+$filteredCollection = new Filter($sourceCollection, fn(Item $item): bool => $item->id > 5);
+$root = (new TreeBuilder( ... ))->build(
+    $filteredCollection,
+);
+
+// Iterate ober leafs only.
+$filter = new Filter($root, fn(Node $node): bool => $node->isLeaf());
+foreach($filter as $node){
+    // ...
+}
+```
 
 
 ## Caveats
