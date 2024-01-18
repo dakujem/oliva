@@ -73,6 +73,49 @@ final class Tree
     }
 
     /**
+     * Attaches a bunch of nodes to a parent,
+     * establishing both the child-to-parent link and adding the child to the parent's children list.
+     *
+     * Does NOT remove the original children, collisions may occur.
+     *
+     * The callable $onParentUnlinked may be used to process cases where the original node's parent is unlinked.
+     */
+    public static function linkChildren(
+        MovableNodeContract $parent,
+        iterable $children,
+        ?callable $onParentUnlinked = null,
+    ): MovableNodeContract {
+        foreach ($children as $key => $child) {
+            if (!$child instanceof MovableNodeContract) {
+                // TODO improve exceptions
+                throw new Exception('Child not movable.');
+            }
+            $originalParent = self::link($child, $parent, $key);
+            if (null !== $parent && null !== $onParentUnlinked) {
+                $onParentUnlinked($originalParent, $child);
+            }
+        }
+        return $parent;
+    }
+
+    /**
+     * Unlinks all children of a node,
+     * both resetting the child-to-parent links and removing the nodes the children list.
+     */
+    public static function unlinkChildren(
+        MovableNodeContract $parent,
+    ): void {
+        foreach ($parent->children() as $key => $child) {
+            if (!$child instanceof MovableNodeContract) {
+                // TODO improve exceptions
+                throw new Exception('Child not movable.');
+            }
+            $child->setParent(null);
+        }
+        $parent->removeChildren();
+    }
+
+    /**
      * @internal
      */
     private static function adoptChild(

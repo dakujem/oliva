@@ -314,7 +314,24 @@ Tree::link(node: new Node('leaf of the first child node'), parent: $child1);
 Tree::link(node: new Node('another leaf of the first child node'), parent: $child1);
 ```
 
+... or a more concise way:
+```php
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Tree;
 
+Tree::linkChildren(node: $root = new Node('root'), children: [
+    Tree::linkChildren(node: new Node('first child'), children: [
+        new Node('leaf of the first child node'),
+        new Node('another leaf of the first child node'),
+    ]),
+    new Node('second child'),
+]);
+```
+
+
+## Iterators
+
+🚧 TODO
 
 
 ## Caveats
