@@ -45,25 +45,6 @@ final class Seed
     }
 
     /**
-     * Returns the first element of an iterable collection.
-     */
-    public static function firstOf(iterable $input): mixed
-    {
-        foreach ($input as $item) {
-            return $item;
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated Name changed.
-     */
-    public static function first(iterable $input): mixed
-    {
-        return self::firstOf($input);
-    }
-
-    /**
      * Create a callable that omits the data nodes with `null` data.
      * To be used with `Filter` iterator as the predicate:
      * @see Filter
@@ -81,6 +62,17 @@ final class Seed
     public static function omitRoot(): callable
     {
         return fn(TreeNodeContract $node): bool => !$node->isRoot();
+    }
+
+    /**
+     * Returns the first element of an iterable collection.
+     */
+    public static function firstOf(iterable $input): mixed
+    {
+        foreach ($input as $item) {
+            return $item;
+        }
+        return null;
     }
 
     /**
