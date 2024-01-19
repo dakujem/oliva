@@ -5,7 +5,7 @@
 
 
 Flexible tree structure,  
-tree builders (materialized path trees, recursive trees),
+tree builders (materialized path trees, recursive trees),  
 tree traversal iterators,  
 filter iterator.
 
