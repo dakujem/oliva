@@ -1,8 +1,11 @@
 # Oliva
 
+[![Test Suite](https://github.com/dakujem/oliva/actions/workflows/php-test.yml/badge.svg)](https://github.com/dakujem/oliva/actions/workflows/php-test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/dakujem/oliva/badge.svg?branch=trunk)](https://coveralls.io/github/dakujem/oliva?branch=trunk)
+
+
 Flexible tree structure,  
-materialized path trees, recursive trees,
-tree builders,
+tree builders (materialized path trees, recursive trees),
 tree traversal iterators,  
 filter iterator.
 
@@ -32,7 +35,7 @@ use Dakujem\Oliva\TreeNodeContract;
 ## Builders
 
 Oliva provides _tree builders_, classes that construct structured trees from unstructured data.
-The data is usually in form of iterable collections, typically a result of SQL queries, API calls, and such.
+The data is usually in form of iterable collections, typically a result of SQL queries, API calls, YAML config, and such.
 
 ```php
 $tree = (new TreeBuilder(
@@ -227,7 +230,7 @@ The node with this parent value will be returned.
 >
 
 
-## Wrapping JSON or arrays
+## Wrapping arrays, JSON, YAML...
 
 In case the data is already structured as tree data, a simple wrapper may be used to build the tree structure.
 
@@ -237,7 +240,9 @@ use Dakujem\Oliva\Simple\TreeWrapper;
 use Dakujem\Oliva\Node;
 
 // $json = (new External\ApiConnector())->call('getJsonData');
-// $data = json_decode($json);
+// $rawData = json_decode($json);
+
+// $rawData = yaml_parse_file('/config.yaml');
 
 $rawData = [
     'children' => [
