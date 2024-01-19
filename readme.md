@@ -373,6 +373,7 @@ foreach ($root as $node) {
 ```
 
 Finally, the filter iterator `Iterator\Filter` may be used for filtering either the input data or tree nodes.
+
 ```php
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Node;
@@ -392,7 +393,7 @@ foreach($filter as $node){
 
 // Find the first node that matches a criterion (data with ID = 42).
 $filter = new Filter($root, fn(Node $node): bool => $node->data()?->id === 42);
-$node = Seed::first(new Filter(
+$node = Seed::firstOf(new Filter(
     input: $root,
     accept: fn(Node $node): bool => $node->data()?->id === 42),
 );

@@ -34,17 +34,6 @@ final class Seed
     }
 
     /**
-     * Returns the first element of an iterable collection.
-     */
-    public static function first(iterable $input): mixed
-    {
-        foreach ($input as $item) {
-            return $item;
-        }
-        return null;
-    }
-
-    /**
      * Prepend `null` value at the beginning of the data collection.
      * Use when missing root.
      * Remember, the data accessor and the node factory must be aware that a null may be passed to them.
@@ -53,6 +42,25 @@ final class Seed
     {
         yield null;
         yield from $input;
+    }
+
+    /**
+     * Returns the first element of an iterable collection.
+     */
+    public static function firstOf(iterable $input): mixed
+    {
+        foreach ($input as $item) {
+            return $item;
+        }
+        return null;
+    }
+
+    /**
+     * @deprecated Name changed.
+     */
+    public static function first(iterable $input): mixed
+    {
+        return self::firstOf($input);
     }
 
     /**

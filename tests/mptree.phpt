@@ -65,7 +65,7 @@ class Item
     Assert::type(AlmostThere::class, $almost);
     Assert::type(Node::class, $almost->root());
     Assert::null($almost->root()?->data());
-    Assert::type(Item::class, Seed::first($almost->root()?->children())?->data());
+    Assert::type(Item::class, Seed::firstOf($almost->root()?->children())?->data());
 
     Assert::same([
         '>' => 'root',
