@@ -1,10 +1,10 @@
 {
   "name": "dakujem/oliva",
-  "description": "Flexible tree structures, materialized path trees, tree iterators.",
+  "description": "Flexible tree structure, tree builders (materialized paths, recursive, wrappers), traversal iterators, filter.",
   "license": "Unlicense",
   "keywords": [
-    "tree iterators",
-    "tree structures",
+    "tree",
+    "tree iterator",
     "materialized path tree",
     "recursive tree"
   ],
@@ -35,11 +35,6 @@
     "test": "Run application tests. (defaults to local tests)",
     "test:local": "Run application tests with local configuration.",
     "test:ci": "Run application tests, provide configuration options as needed."
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-trunk": "1.0.x-dev"
-    }
   },
   "archive": {
     "exclude": ["/tests", "/.github"]
