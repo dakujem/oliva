@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Dakujem\Oliva\DataNodeContract;
 use Dakujem\Oliva\Iterator\LevelOrderTraversal;
+use Dakujem\Oliva\Iterator\Native;
 use Dakujem\Oliva\Iterator\PostOrderTraversal;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Iterator\Support\Counter;
@@ -16,6 +17,18 @@ require_once __DIR__ . '/../vendor/autoload.php';
 Environment::setup();
 
 (function () {
+    $counter = new Counter();
+    Assert::same(0, $counter->current());
+    Assert::same(0, $counter->touch());
+    Assert::same(1, $counter->touch());
+    Assert::same(2, $counter->current());
+    Assert::same(3, $counter->next());
+    Assert::same(3, $counter->current());
+
+    $counter = new Counter(5);
+    Assert::same(5, $counter->current());
+
+
     $a = new Node('A');
     $b = new Node('B');
     $c = new Node('C');
@@ -219,17 +232,30 @@ Environment::setup();
     Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
 
 
-    $counter = new Counter();
-    Assert::same(0, $counter->current());
-    Assert::same(0, $counter->touch());
-    Assert::same(1, $counter->touch());
-    Assert::same(2, $counter->current());
-    Assert::same(3, $counter->next());
-    Assert::same(3, $counter->current());
+    // level-order (?), leaves only (the default)
+    $str = [];
+    foreach (new RecursiveIteratorIterator(new Native($root)) as $node) {
+        $str[] = $node->data();
+    }
+    Assert::same('A,C,E,H', implode(',', $str));
+    $str = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
+        $str[] = $node->data();
+    }
+    Assert::same('A,C,E,H', implode(',', $str));
 
-    $counter = new Counter(5);
-    Assert::same(5, $counter->current());
-//$root->addChild(new)
+    // pre-order, all nodes
+    $str = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::SELF_FIRST) as $node) {
+        $str[] = $node->data();
+    }
+    Assert::same('F,B,A,D,C,E,G,I,H', implode(',', $str));
 
+    // post-order, all nodes
+    $str = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::CHILD_FIRST) as $node) {
+        $str[] = $node->data();
+    }
+    Assert::same('A,C,E,D,B,H,I,G,F', implode(',', $str));
 })();
 
