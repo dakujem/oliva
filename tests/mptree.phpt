@@ -86,6 +86,7 @@ class Item
     );
     Assert::same(['000', '000'], $vectorExtractor('000000'));
     Assert::same(['foo', 'bar'], $vectorExtractor('foobar'));
+    Assert::same(['x'], $vectorExtractor('x')); // shorter than 3
     Assert::same([], $vectorExtractor(''));
     Assert::same([], $vectorExtractor(null));
     Assert::throws(function () use ($vectorExtractor) {

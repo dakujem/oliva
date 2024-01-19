@@ -71,7 +71,7 @@ final class TreeBuilder
     {
         return function (mixed $data) use ($levelWidth, $accessor): array {
             $path = $accessor($data);
-            if (null === $path) {
+            if (null === $path || $path === '') {
                 return [];
             }
             if (!is_string($path)) {
