@@ -1,4 +1,5 @@
-# Oliva
+
+# Oliva 🌳
 
 [![Test Suite](https://github.com/dakujem/oliva/actions/workflows/php-test.yml/badge.svg)](https://github.com/dakujem/oliva/actions/workflows/php-test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/dakujem/oliva/badge.svg?branch=trunk)](https://coveralls.io/github/dakujem/oliva?branch=trunk)
@@ -6,15 +7,14 @@
 
 Flexible tree structure,  
 tree builders (materialized path trees, recursive trees),  
-tree traversal iterators,  
-filter iterator.
+tree traversal iterators, filter iterator.
 
 >
 > 💿 `composer require dakujem/oliva`
 >
 
 
-This package is a modern reimplementation of [`oliva/tree`](https://github.com/dakujem/oliva-tree).
+This package is a modern reimplementation of [`oliva/tree`](https://packagist.org/packages/oliva/tree).
 
 
 ## Tree
@@ -587,8 +587,8 @@ If a node's parent matches the value, it is considered the root node.
 **Builders and iterators**
 
 If migrating from the previous library ([`oliva/tree`](https://github.com/dakujem/oliva-tree)), the most common problems are caused by
-- the builders not automatically adding an empty root node
-- the iterators iterating over root node
+- the new builders not automatically adding an empty root node
+- the new iterators iterating over root node
 
 For both, see "Materialized path tree without root data" and "Recursive tree without root data" sections above.
 
