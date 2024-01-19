@@ -9,7 +9,7 @@ use Exception;
 /**
  * A helper class for high-level tree operations.
  *
- * This contrasts with the low-level interface.
+ * This contrasts with the low-level interface of movable nodes:
  * @see MovableNodeContract
  *
  * @author Andrej Rypak <xrypak@gmail.com>
@@ -113,6 +113,35 @@ final class Tree
             $child->setParent(null);
         }
         $parent->removeChildren();
+    }
+
+    /**
+     *
+     * Usage of <=> (spaceship) operator to compare based on path props:
+     * fn(Node $a, Node $b) => $a->data()->path <=> $b->data()->path
+     *
+     */
+    public static function reindexTree(
+        MovableNodeContract $node,
+        ?callable $key,
+        ?callable $sort,
+    ): void {
+        $children = Seed::array($node->children());
+        $node->removeChildren();
+        if (null !== $sort) {
+            uasort($children, $sort);
+        }
+        $seq = 0;
+        foreach ($children as $childKey => $child) {
+            if (!$child instanceof MovableNodeContract) {
+                // TODO improve exceptions
+                throw new Exception('Child not movable.');
+            }
+            $newKey = null !== $key ? $key($child, $childKey, $seq) : $childKey;
+            $node->addChild($child, $newKey);
+            self::reindexTree($child, $key, $sort);
+            $seq += 1;
+        }
     }
 
     /**

@@ -608,4 +608,4 @@ composer test
 
 Ideas or contribution is welcome. Please send a PR or submit an issue.
 
-And if you happen to like the library, spread the word 🙏.
+And if you happen to like the library, give it a star and spread the word 🙏.

@@ -95,10 +95,19 @@ final class Seed
 
     /**
      * Accepts any iterable and returns an iterator.
-     * Useful where en iterator is required, but any iterable or array is provided.
+     * Useful where an iterator is required, but an iterable type is provided.
      */
     public static function iterator(iterable $input): Iterator
     {
         return is_array($input) ? new ArrayIterator($input) : new IteratorIterator($input);
+    }
+
+    /**
+     * Accepts any iterable and returns an array.
+     * Useful where an array is required, but an iterable type is provided.
+     */
+    public static function array(iterable $input): array
+    {
+        return is_array($input) ? $input : iterator_to_array($input);
     }
 }
