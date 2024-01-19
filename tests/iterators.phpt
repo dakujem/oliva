@@ -44,6 +44,8 @@ Environment::setup();
         $to->setParent($from);
     };
 
+    // Tree from here:
+    // https://en.wikipedia.org/wiki/Tree_traversal
     $root = $f;
     $edge($f, $b);
     $edge($b, $a);
