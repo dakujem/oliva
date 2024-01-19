@@ -150,8 +150,6 @@ class Item
     );
 
 
-//new Filter($it, Seed::omitNull());
-//new Filter($it, Seed::omitRoot());
 
     Assert::same([
         '>' => '[0]',
