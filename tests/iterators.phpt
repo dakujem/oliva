@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Dakujem\Test;
+
 use Dakujem\Oliva\DataNodeContract;
 use Dakujem\Oliva\Iterator\LevelOrderTraversal;
 use Dakujem\Oliva\Iterator\Native;
@@ -10,11 +12,10 @@ use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Iterator\Support\Counter;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
+use RecursiveIteratorIterator;
 use Tester\Assert;
-use Tester\Environment;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-Environment::setup();
+require_once __DIR__ . '/setup.php';
 
 (function () {
     $counter = new Counter();

@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
+namespace Dakujem\Test;
+
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\TreeNodeContract;
+use LogicException;
 use Tester\Assert;
-use Tester\Environment;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-Environment::setup();
+require_once __DIR__ . '/setup.php';
 
 class Item
 {

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Dakujem\Test;
+
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\MaterializedPath\Path;
 use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
@@ -10,11 +12,11 @@ use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\Tree;
 use Dakujem\Oliva\TreeNodeContract;
+use LogicException;
+use RuntimeException;
 use Tester\Assert;
-use Tester\Environment;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-Environment::setup();
+require_once __DIR__ . '/setup.php';
 
 class Item
 {
@@ -92,7 +94,7 @@ class Item
     Assert::same([], $vectorExtractor(null));
     Assert::throws(function () use ($vectorExtractor) {
         $vectorExtractor(4.2);
-    }, \RuntimeException::class); // TODO improve
+    }, RuntimeException::class); // TODO improve
 
 
     // an empty input can not result in any tree
@@ -165,7 +167,7 @@ class Item
     ], $toArray($root));
 
 
-    Tree::reindexTree($root, fn(Node $node)=>$node->data()->id, null);
+    Tree::reindexTree($root, fn(Node $node) => $node->data()->id, null);
     Assert::same([
         '>' => '[0]',
         '>1' => '[1]',
@@ -190,6 +192,4 @@ class Item
         '>3' => '[3]', // .3
         '>9' => '[9]', // .9
     ], $toArray($root));
-
-
 })();

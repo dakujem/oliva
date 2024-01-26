@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
+namespace Dakujem\Test;
+
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Simple\NodeBuilder;
 use Dakujem\Oliva\Simple\TreeWrapper;
 use Tester\Assert;
-use Tester\Environment;
 
-require_once __DIR__ . '/../vendor/autoload.php';
-Environment::setup();
+require_once __DIR__ . '/setup.php';
 
 (function () {
     $builder = new NodeBuilder(fn(mixed $data) => new Node($data));
