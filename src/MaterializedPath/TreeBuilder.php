@@ -67,43 +67,6 @@ final class TreeBuilder
         $this->vector = $vector;
     }
 
-    public static function fixed(int $levelWidth, callable $accessor): callable
-    {
-        return function (mixed $data) use ($levelWidth, $accessor): array {
-            $path = $accessor($data);
-            if (null === $path || $path === '') {
-                return [];
-            }
-            if (!is_string($path)) {
-                // TODO improve exceptions (index/path etc)
-                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
-            }
-            return str_split($path, $levelWidth);
-        };
-    }
-
-    public static function delimited(string $delimiter, callable $accessor): callable
-    {
-        if (strlen($delimiter) !== 1) {
-            throw new LogicException('The delimiter must be a single character.');
-        }
-        return function (mixed $data) use ($delimiter, $accessor): array {
-            $path = $accessor($data);
-            if (null === $path) {
-                return [];
-            }
-            if (!is_string($path)) {
-                // TODO improve exceptions (index/path etc)
-                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
-            }
-            $path = trim($path, $delimiter);
-            if ('' === $path) {
-                return [];
-            }
-            return explode($delimiter, $path);
-        };
-    }
-
     public function build(iterable $input): TreeNodeContract
     {
         $root = $this->processInput($input)->root();

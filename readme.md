@@ -109,8 +109,10 @@ The following tree will be used in the examples below:
 ```
 
 Simple example of a fixed-length MPT:
+
 ```php
 use Any\Item;
+use Dakujem\Oliva\MaterializedPath\Path;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
@@ -128,7 +130,7 @@ $collection = [
 
 $builder = new TreeBuilder(
     node: fn(Item $item) => new Node($item),      // How to create a node.
-    vector: TreeBuilder::fixed(                   // How to extract path vector.
+    vector: Path::fixed(                          // How to extract path vector.
         levelWidth: 3,
         accessor: fn(Item $item) => $item->path,
     ),
@@ -140,8 +142,10 @@ $root = $builder->build(
 ```
 
 Same example with an equivalent delimited MPT:
+
 ```php
 use Any\Item;
+use Dakujem\Oliva\MaterializedPath\Path;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
 
@@ -158,7 +162,7 @@ $collection = [
 
 $builder = new TreeBuilder(
     node: fn(Item $item) => new Node($item),      // How to create a node.
-    vector: TreeBuilder::delimited(               // How to extract path vector.
+    vector: Path::delimited(                      // How to extract path vector.
         delimiter: '.',
         accessor: fn(Item $item) => $item->path,
     ),

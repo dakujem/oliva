@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\MaterializedPath\Path;
 use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
 use Dakujem\Oliva\Node;
@@ -53,7 +54,7 @@ class Item
 
     $builder = new TreeBuilder(
         node: fn(?Item $item) => new Node($item),
-        vector: TreeBuilder::fixed(
+        vector: Path::fixed(
             3,
             fn(?Item $item) => $item?->path,
         ),
@@ -80,7 +81,7 @@ class Item
     ], $toArray($almost->root()));
 
 
-    $vectorExtractor = TreeBuilder::fixed(
+    $vectorExtractor = Path::fixed(
         3,
         fn(mixed $path) => $path,
     );
@@ -139,7 +140,7 @@ class Item
 
     $builder = new TreeBuilder(
         node: fn(Item $item) => new Node($item),
-        vector: TreeBuilder::delimited(
+        vector: Path::delimited(
             delimiter: '.',
             accessor: fn(Item $item) => $item->path,
         ),
