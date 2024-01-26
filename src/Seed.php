@@ -12,10 +12,10 @@ use IteratorIterator;
 /**
  * A static tool to manage iterable data collections and iterators.
  *
- * Contains:
- * - methods that produce or adapt iterable data and iterators
- *  - methods that produce filtering callables to be used with the Filter iterator
- *  - methods that produce extractor callables to be used with tree builders
+ * Contains methods that:
+ * - produce or adapt iterable data and iterators
+ * - simplify working with iterables
+ * - produce filtering callables to be used with the Filter iterator or input data
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
@@ -73,24 +73,6 @@ final class Seed
             return $item;
         }
         return null;
-    }
-
-    /**
-     * Create an extractor that extracts a property of objects.
-     *  Note: Abbreviation of "property".
-     */
-    public static function prop(string $name, mixed $default = null): callable
-    {
-        return fn(object $item) => $item->{$name} ?? $default;
-    }
-
-    /**
-     * Create an extractor that extracts a member of arrays.
-     * Note: Abbreviation of "attribute".
-     */
-    public static function attr(string|int $name, mixed $default = null): callable
-    {
-        return fn(array $item) => $item[$name] ?? $default;
     }
 
     /**
