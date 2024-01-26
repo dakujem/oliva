@@ -32,13 +32,10 @@ require_once __DIR__ . '/setup.php';
     ]);
 
     // pre-order
-    $str = [];
-    foreach ($root as $node) {
-        $str[] = $node->data();
-    }
-    Assert::same('F,B,A,D,C,E,G,I,H', implode(',', $str));
+    Assert::same('FBADCEGIH', TreeTesterTool::flatten($root));
+})();
 
-
+(function () {
     // Tree from here:
     // https://en.wikipedia.org/wiki/Tree_traversal
     $data = [
@@ -82,9 +79,5 @@ require_once __DIR__ . '/setup.php';
     $root = $wrapper->wrap($data);
 
     // pre-order
-    $str = [];
-    foreach ($root as $node) {
-        $str[] = $node->data();
-    }
-    Assert::same('F,B,A,D,C,E,G,I,H', implode(',', $str));
+    Assert::same('FBADCEGIH', TreeTesterTool::flatten($root));
 })();

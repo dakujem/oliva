@@ -10,7 +10,6 @@ use Dakujem\Oliva\Iterator\Native;
 use Dakujem\Oliva\Iterator\PostOrderTraversal;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Iterator\Support\Counter;
-use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
 use RecursiveIteratorIterator;
 use Tester\Assert;
@@ -25,75 +24,51 @@ require_once __DIR__ . '/setup.php';
     Assert::same(2, $counter->current());
     Assert::same(3, $counter->next());
     Assert::same(3, $counter->current());
+})();
 
+(function () {
     $counter = new Counter(5);
     Assert::same(5, $counter->current());
+})();
 
-
-    $a = new Node('A');
-    $b = new Node('B');
-    $c = new Node('C');
-    $d = new Node('D');
-    $e = new Node('E');
-    $f = new Node('F');
-    $g = new Node('G');
-    $h = new Node('H');
-    $i = new Node('I');
-
-    $edge = function (Node $from, Node $to): void {
-        $from->addChild($to);
-        $to->setParent($from);
-    };
-
-    // Tree from here:
-    // https://en.wikipedia.org/wiki/Tree_traversal
-    $root = $f;
-    $edge($f, $b);
-    $edge($b, $a);
-    $edge($b, $d);
-    $edge($d, $c);
-    $edge($d, $e);
-    $edge($f, $g);
-    $edge($g, $i);
-    $edge($i, $h);
+(function () {
+    $root = Preset::wikiTree();
 
     $iterator = new PreOrderTraversal($root);
     $str = '';
     foreach ($iterator as $node) {
         $str .= $node->data();
     }
-//echo $str;
-//echo "\n";
     Assert::same('FBADCEGIH', $str);
+    Assert::same('FBADCEGIH', TreeTesterTool::append($iterator));
 
     $iterator = new PostOrderTraversal($root);
     $str = '';
     foreach ($iterator as $node) {
         $str .= $node->data();
     }
-//echo $str;
-//echo "\n";
     Assert::same('ACEDBHIGF', $str);
+    Assert::same('ACEDBHIGF', TreeTesterTool::append($iterator));
 
     $iterator = new LevelOrderTraversal($root);
     $str = '';
     foreach ($iterator as $i => $node) {
         $str .= $node->data();
     }
-//echo $str;
-//echo "\n";
     Assert::same('FBGADICEH', $str);
+    Assert::same('FBGADICEH', TreeTesterTool::append($iterator));
 
-//echo "\n";
     Assert::type(PreOrderTraversal::class, $root->getIterator());
     $str = '';
     foreach ($root as $node) {
         $str .= $node->data();
     }
-//echo $str;
     Assert::same('FBADCEGIH', $str);
-//echo "\n";
+    Assert::same('FBADCEGIH', TreeTesterTool::append($root->getIterator()));
+})();
 
+(function () {
+    $root = Preset::wikiTree();
 
     $iterator = new PreOrderTraversal(
         node: $root,
@@ -166,7 +141,10 @@ require_once __DIR__ . '/setup.php';
         'a.b.1.0.0' => 'H',
     ];
     Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+})();
 
+(function () {
+    $root = Preset::wikiTree();
 
     $iterator = new PostOrderTraversal($root);
     $expected = [
@@ -199,8 +177,10 @@ require_once __DIR__ . '/setup.php';
         'a.b' => 'F',
     ];
     Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+})();
 
-
+(function () {
+    $root = Preset::wikiTree();
 
     $iterator = new LevelOrderTraversal($root);
     $expected = [
@@ -233,7 +213,11 @@ require_once __DIR__ . '/setup.php';
         'a.b.1.0.0' => 'H',
     ];
     Assert::same($expected, array_map(fn(DataNodeContract $node) => $node->data(), iterator_to_array($iterator)));
+})();
 
+
+(function () {
+    $root = Preset::wikiTree();
 
     // level-order (?), leaves only (the default)
     $str = [];
