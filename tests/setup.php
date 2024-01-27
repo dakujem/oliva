@@ -66,6 +66,14 @@ final class Preset
     /**
      * Returns manually built tree from Wikipedia:
      * @link https://en.wikipedia.org/wiki/Tree_traversal
+     *
+     *                 F
+     *                 |
+     *         B ------+------ G
+     *         |               |
+     *     A --+-- D           I
+     *             |           |
+     *         C --+-- E       H
      */
     public static function wikiTree(): Node
     {
