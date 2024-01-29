@@ -79,7 +79,7 @@ MPT refers to the technique of storing the position of nodes relative to the roo
 There are multiple ways to actually do that and Oliva is agnostic of them.  
 A typical _path_ of a node may look like the following:
 - `"1.33.2"`, `"/1/33/2"`, also known as the **delimited** variant
-- `"001033002"`, known as the **fixed** variant with 3 characters per level (here `001`, `033` and `002`)
+- `"001033002"`, known as the **fixed** (or fixed-width) variant with constant width of 3 characters per level (here `001`, `033` and `002`)
 - `[1,33,2]`, as an array of integers, here also referred to as a _vector_
 
 Also, the individual references may either mean the position relative to other siblings on a given level, or be direct node references (ancestor IDs).
@@ -87,7 +87,7 @@ That is, a path `1.2.3` may mean "the third child of the second child of the fir
 or it may mean that a node's ancestor IDs are `[1,2,3]`, `3` being the parent's ID.
 
 To enable all the different techniques, Oliva MPT `TreeBuilder` requires the user to pass a vector extractor function, e.g. `fn($item) => explode('.', $item->path)`.
-Oliva comes with two common-case extractor factories: `TreeBuilder::fixed()` and `TreeBuilder::delimited()`.
+Oliva comes with two common-case extractor factories: `Path::fixed()` and `Path::delimited()`.
 
 The following tree will be used in the examples below:
 ```
@@ -191,8 +191,8 @@ $root = $builder->build(
 
 ## Recursive trees
 
-By far the most common and trivial way of persisting trees. Each node has a reference to its parent.
-The tree is reconstructed recursively.
+Each node's data has a (recursive) reference to its parent node's data.  
+Probably the most common and trivial way of persisting trees.
 
 ```php
 use Any\Item;
@@ -212,8 +212,8 @@ $collection = [
 
 $builder = new TreeBuilder(
     node: fn(Item $item) => new Node($item),      // How to create a node.
-    self: fn(Item $item) => $item->id,            // How to get ID of self.
-    parent: fn(Item $item) => $item->parent,      // How to get parent ID.
+    selfRef: fn(Item $item) => $item->id,         // How to get ID of self.
+    parentRef: fn(Item $item) => $item->parent,   // How to get parent ID.
     root: null,                                   // The root node's parent value.
 );
 
