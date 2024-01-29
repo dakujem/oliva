@@ -37,7 +37,7 @@ final class PreOrderTraversal implements IteratorAggregate
         );
     }
 
-    private function generate(TreeNodeContract $node, array $vector, int $nodeSeq, Counter $counter)
+    private function generate(TreeNodeContract $node, array $vector, int $nodeSeq, Counter $counter): Generator
     {
         // The yielded key is calculated by the key function.
         // By default, it returns an incrementing sequence to prevent issues with `iterator_to_array` casts.

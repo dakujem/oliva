@@ -37,7 +37,7 @@ final class PostOrderTraversal implements IteratorAggregate
         );
     }
 
-    private function generate(TreeNodeContract $node, array $vector, int $nodeSeq, Counter $counter)
+    private function generate(TreeNodeContract $node, array $vector, int $nodeSeq, Counter $counter): Generator
     {
         // $seq is the child sequence number, within the given parent node.
         $seq = 0;
