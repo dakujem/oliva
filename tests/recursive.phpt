@@ -44,8 +44,8 @@ class Item
 
     $builder = new TreeBuilder(
         node: fn(?Item $item) => new Node($item),
-        self: fn(?Item $item) => $item?->id,
-        parent: fn(?Item $item) => $item?->parent,
+        selfRef: fn(?Item $item) => $item?->id,
+        parentRef: fn(?Item $item) => $item?->parent,
     );
 
     $tree = $builder->build(
@@ -70,8 +70,8 @@ class Item
 
     $builder = new TreeBuilder(
         node: fn(?Item $item) => new Node($item),
-        self: fn(?Item $item) => $item?->id,
-        parent: fn(?Item $item) => $item?->parent,
+        selfRef: fn(?Item $item) => $item?->id,
+        parentRef: fn(?Item $item) => $item?->parent,
     );
 
     $tree = $builder->build(

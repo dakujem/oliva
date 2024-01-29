@@ -28,8 +28,10 @@ final class NodeBuilder
         $this->factory = $node;
     }
 
-    public function node(mixed $data, iterable $children = []): TreeNodeContract
-    {
+    public function node(
+        mixed $data,
+        iterable $children = [],
+    ): TreeNodeContract {
         // Build the node.
         $node = ($this->factory)($data);
 

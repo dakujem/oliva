@@ -33,21 +33,21 @@ final class TreeBuilder
      * signature `fn(mixed $data): MovableNodeContract`.
      * @var callable
      */
-    private $node;
+    private $factory;
 
     /**
      * Extractor of the self reference,
      * signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node): string|int`.
      * @var callable
      */
-    private $self;
+    private $selfRef;
 
     /**
      * Extractor of the parent reference,
      * signature `fn(mixed $data, mixed $inputIndex, TreeNodeContract $node): string|int|null`.
      * @var callable
      */
-    private $parent;
+    private $parentRef;
 
     /**
      * Callable that detects the root node.
@@ -58,18 +58,24 @@ final class TreeBuilder
 
     public function __construct(
         callable $node,
-        callable $self,
-        callable $parent,
+        callable $selfRef,
+        callable $parentRef,
         string|int|callable|null $root = null,
     ) {
-        $this->node = $node;
-        $this->self = $self;
-        $this->parent = $parent;
+        $this->factory = $node;
+        $this->selfRef = $selfRef;
+        $this->parentRef = $parentRef;
         if (null === $root || is_string($root) || is_int($root)) {
             // By default, the root node is detected by having the parent ref equal to `null`.
             // By passing in a string or an integer, the root node will be detected by comparing that value to the node's parent value.
             // For custom "is root" detector, use a callable.
-            $this->root = fn($data, $inputIndex, $node, $parentRef, $selfRef): bool => $parentRef === $root;
+            $this->root = fn(
+                mixed $data,
+                mixed $inputIndex,
+                TreeNodeContract $node,
+                int|string|null $parentReference,
+                int|string|null $selfReference,
+            ): bool => $parentReference === $root;
         } elseif (is_callable($root)) {
             $this->root = $root;
         } else {
@@ -81,9 +87,9 @@ final class TreeBuilder
     {
         [$root] = $this->processData(
             input: $input,
-            nodeFactory: $this->node,
-            selfRefExtractor: $this->self,
-            parentRefExtractor: $this->parent,
+            nodeFactory: $this->factory,
+            selfRefExtractor: $this->selfRef,
+            parentRefExtractor: $this->parentRef,
             isRoot: $this->root,
         );
         return $root;
@@ -121,26 +127,35 @@ final class TreeBuilder
                 throw new LogicException('The node factory must return a movable node instance.');
             }
 
-            $self = $selfRefExtractor($data, $inputIndex, $node);
-            $parent = $parentRefExtractor($data, $inputIndex, $node);
+            $selfRef = $selfRefExtractor($data, $inputIndex, $node);
+            $parentRef = $parentRefExtractor($data, $inputIndex, $node);
 
-            if (isset($nodeRegister[$self])) {
+            if (!is_string($selfRef) && !is_int($selfRef)) {
                 // TODO improve exceptions
-                throw new LogicException('Duplicate node reference: ' . $self);
+                throw new LogicException('Invalid "self reference" returned by the extractor. Requires a int|string unique to the given node.');
             }
-            $nodeRegister[$self] = $node;
+            if (null !== $parentRef && !is_string($parentRef) && !is_int($parentRef)) {
+                // TODO improve exceptions
+                throw new LogicException('Invalid "parent reference" returned by the extractor. Requires a int|string uniquely pointing to "self reference" of another node, or `null`.');
+            }
+
+            if (isset($nodeRegister[$selfRef])) {
+                // TODO improve exceptions
+                throw new LogicException('Duplicate node reference: ' . $selfRef);
+            }
+            $nodeRegister[$selfRef] = $node;
 
             // When this node is the root, it has no parent.
-            if (!$rootFound && $isRoot($data, $inputIndex, $node, $parent, $self)) {
-                $rootRef = $self;
+            if (!$rootFound && $isRoot($data, $inputIndex, $node, $parentRef, $selfRef)) {
+                $rootRef = $selfRef;
                 $rootFound = true;
                 continue;
             }
 
-            if (!isset($childRegister[$parent])) {
-                $childRegister[$parent] = [];
+            if (!isset($childRegister[$parentRef])) {
+                $childRegister[$parentRef] = [];
             }
-            $childRegister[$parent][] = $self;
+            $childRegister[$parentRef][] = $selfRef;
         }
 
         if (!$rootFound) {

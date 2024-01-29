@@ -50,7 +50,7 @@ final class TreeBuilder
      * signature `fn(mixed $data): MovableNodeContract`.
      * @var callable
      */
-    private $node;
+    private $factory;
 
     /**
      * Extractor of the node vector,
@@ -63,7 +63,7 @@ final class TreeBuilder
         callable $node,
         callable $vector,
     ) {
-        $this->node = $node;
+        $this->factory = $node;
         $this->vector = $vector;
     }
 
@@ -80,7 +80,7 @@ final class TreeBuilder
     {
         $shadowRoot = $this->buildShadowTree(
             $input,
-            $this->node,
+            $this->factory,
             $this->vector,
         );
 

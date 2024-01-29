@@ -38,8 +38,9 @@ final class TreeWrapper
         $this->childrenExtractor = $children;
     }
 
-    public function wrap(mixed $data): TreeNodeContract
-    {
+    public function wrap(
+        mixed $data,
+    ): TreeNodeContract {
         return $this->wrapNode(
             data: $data,
             nodeFactory: $this->factory,

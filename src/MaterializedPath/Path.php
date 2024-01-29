@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\MaterializedPath;
 
+use Dakujem\Oliva\TreeNodeContract;
 use LogicException;
 
 /**
@@ -25,7 +26,10 @@ final class Path
         if (strlen($delimiter) !== 1) {
             throw new LogicException('The delimiter must be a single character.');
         }
-        return function (mixed $data) use ($delimiter, $accessor): array {
+        return function (mixed $data, mixed $inputIndex = null, ?TreeNodeContract $node = null) use (
+            $delimiter,
+            $accessor,
+        ): array {
             $path = $accessor($data);
             if (null === $path) {
                 return [];
@@ -53,7 +57,10 @@ final class Path
      */
     public static function fixed(int $levelWidth, callable $accessor): callable
     {
-        return function (mixed $data) use ($levelWidth, $accessor): array {
+        return function (mixed $data, mixed $inputIndex = null, ?TreeNodeContract $node = null) use (
+            $levelWidth,
+            $accessor,
+        ): array {
             $path = $accessor($data);
             if (null === $path || $path === '') {
                 return [];

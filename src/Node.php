@@ -42,7 +42,7 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
     }
 
     /**
-     * Discover whether the given node is one or the given key points to one of this node's children.
+     * Discover whether the given node is one of this node's children (or the given key points to one of them).
      */
     public function hasChild(TreeNodeContract|string|int $child): bool
     {
@@ -58,7 +58,7 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
 
     /**
      * Get a specific child, if possible.
-     * Returns `null` when there is no such a child.
+     * Returns `null` when there is no such child.
      */
     public function child(int|string $key): ?TreeNodeContract
     {
