@@ -22,13 +22,13 @@ final class TreeTesterTool
         string $traversalClass = PreOrderTraversal::class,
         string $glue = '',
     ): string {
-        return self::append(
+        return self::chain(
             new $traversalClass($node),
             $glue,
         );
     }
 
-    public static function append(
+    public static function chain(
         iterable $traversal,
         string $glue = '',
         ?callable $extractor = null,

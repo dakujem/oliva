@@ -384,22 +384,45 @@ Tree::link($node, $parent);
 The `Tree::link` call will take care of all the relations: unlinking the original parent and linking the subtree to the new one.
 
 
-## Iterators
+## Tree traversal and iterators
 
-Oliva provides iterators for tree traversal and a filter iterator.
+Oliva provides tree traversal iterators, generators and a filter iterator.
 
-The traversal iterators will iterate over **all** the tree's nodes, including the root, in a specific order.
+The traversal iterators and generators will iterate over **all** the tree's nodes in a specific order.
 
-**Depth-first search**
-- `Iterator\PreOrderTraversal` pre-order traversal
-- `Iterator\PostOrderTraversal` post-order traversal
+**Depth-first search, pre-order traversal**
+- `Traversal::preOrder` generator
+- `PreOrderTraversal` iterator 
 
-**Breadth-first search**
-- `Iterator\LevelOrderTraversal` level-order traversal
+**Depth-first search, post-order traversal**
+- `Traversal::postOrder` generator
+- `PostOrderTraversal` iterator
 
-If unsure what the above means, read more about [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
+**Breadth-first search, level-order traversal**
+- `Traversal::levelOrder` generator
+- `LevelOrderTraversal` iterator
 
-If the order of traversal, is not important, a `Node` instance can be iterated over:
+>
+> If unsure what the different traversals mean, read more about [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
+> 
+
+```php
+use Dakujem\Oliva\Iterator\Traversal;
+use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\Iterator\PostOrderTraversal;
+use Dakujem\Oliva\Iterator\LevelOrderTraversal;
+
+foreach(Traversal::levelOrder($root) as $node) { /* ... */ }
+foreach(new LevelOrderTraversal($root) as $node) { /* ... */ }
+```
+
+> 💡
+>
+> The key difference between the iterator classes and generator methods is in the keys.
+> If the keys in the iteration do not matter, use the `Traversal`'s generator methods for slightly better performance.
+> 
+
+If the order of traversal is not important, a `Node` instance can simply be iterated over:
 
 ```php
 use Dakujem\Oliva\Node;
@@ -407,11 +430,24 @@ use Dakujem\Oliva\Node;
 $root = new Node( ... );
 
 foreach ($root as $node) {
-    // do something useful with the nodes
+    // do something useful with the node
 }
 ```
 
-Finally, the filter iterator `Iterator\Filter` may be used for filtering either the input data or tree nodes.
+The above will iterate over the whole subtree, including the node itself and all its descendants.
+
+>
+> 💡
+>
+> Traversals may be used to decorate nodes or even alter the trees.  
+> Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
+> otherwise you may experience unexpected.
+>
+
+
+### Filtering nodes
+
+Finally, the **filter iterator** `Iterator\Filter` may be used for filtering either the input data or tree nodes.
 
 ```php
 use Dakujem\Oliva\Iterator\Filter;
@@ -436,14 +472,6 @@ $node = Seed::firstOf(new Filter(
     accept: fn(Node $node): bool => $node->data()?->id === 42),
 );
 ```
-
->
-> 💡
->
-> Traversals may be used to decorate nodes or even alter the trees.  
-> Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
-> otherwise you may experience unexpected.
->
 
 
 ### Searching for specific nodes
@@ -483,7 +511,7 @@ class TreeFinder
 
 ### Node keys
 
-Normally, the keys will increment during a traversal (using any traversal iterator).
+Normally, the keys will increment during a traversal (using any traversal iterator or generator).
 ```php
 use Dakujem\Oliva\Node;
 
@@ -494,7 +522,7 @@ foreach ($root as $key => $node) {
 }
 ```
 
-It is possible to alter the key sequence using a key callable.  
+When using any of the traversal _iterators_, it is possible to alter the key sequence using a key callable.  
 This example generates a delimited materialized path:
 ```php
 use Dakujem\Oliva\Iterator\PreOrderTraversal;

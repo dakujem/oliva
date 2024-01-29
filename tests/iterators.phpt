@@ -40,7 +40,7 @@ require_once __DIR__ . '/setup.php';
         $str .= $node->data();
     }
     Assert::same('FBADCEGIH', $str);
-    Assert::same('FBADCEGIH', TreeTesterTool::append($iterator));
+    Assert::same('FBADCEGIH', TreeTesterTool::chain($iterator));
 
     $iterator = new PostOrderTraversal($root);
     $str = '';
@@ -48,23 +48,24 @@ require_once __DIR__ . '/setup.php';
         $str .= $node->data();
     }
     Assert::same('ACEDBHIGF', $str);
-    Assert::same('ACEDBHIGF', TreeTesterTool::append($iterator));
+    Assert::same('ACEDBHIGF', TreeTesterTool::chain($iterator));
 
     $iterator = new LevelOrderTraversal($root);
     $str = '';
-    foreach ($iterator as $i => $node) {
+    foreach ($iterator as $node) {
         $str .= $node->data();
     }
     Assert::same('FBGADICEH', $str);
-    Assert::same('FBGADICEH', TreeTesterTool::append($iterator));
+    Assert::same('FBGADICEH', TreeTesterTool::chain($iterator));
 
-    Assert::type(PreOrderTraversal::class, $root->getIterator());
+//    Assert::type(PreOrderTraversal::class, $root->getIterator());
     $str = '';
     foreach ($root as $node) {
         $str .= $node->data();
     }
     Assert::same('FBADCEGIH', $str);
-    Assert::same('FBADCEGIH', TreeTesterTool::append($root->getIterator()));
+    Assert::same('FBADCEGIH', TreeTesterTool::chain($root));
+    Assert::same('FBADCEGIH', TreeTesterTool::chain($root->getIterator()));
 })();
 
 (function () {

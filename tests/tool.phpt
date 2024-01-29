@@ -24,14 +24,14 @@ require_once __DIR__ . '/setup.php';
 })();
 
 (function () {
-    Assert::same('', TreeTesterTool::append([]));
-    Assert::same('ABC', TreeTesterTool::append([
+    Assert::same('', TreeTesterTool::chain([]));
+    Assert::same('ABC', TreeTesterTool::chain([
         new Node('A'),
         new Node('B'),
         new Node('C'),
     ]));
-    Assert::same('', TreeTesterTool::append([], '.'));
-    Assert::same('.A.B.C', TreeTesterTool::append([
+    Assert::same('', TreeTesterTool::chain([], '.'));
+    Assert::same('.A.B.C', TreeTesterTool::chain([
         new Node('A'),
         new Node('B'),
         new Node('C'),

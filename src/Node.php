@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva;
 
-use Dakujem\Oliva\Iterator\PreOrderTraversal;
+use Dakujem\Oliva\Iterator\Traversal;
 use Exception;
+use Generator;
 use IteratorAggregate;
 use JsonSerializable;
 
@@ -190,12 +191,13 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
     }
 
     /**
-     * Returns an iterator that iterates over this node and all its descendants in pre-order depth-first search order.
-     * @return PreOrderTraversal
+     * Returns an iterator that iterates over this node and all its descendants,
+     * in pre-order depth-first search order.
+     * @return Generator
      */
-    public function getIterator(): PreOrderTraversal
+    public function getIterator(): Generator
     {
-        return new PreOrderTraversal($this);
+        return Traversal::preOrder($this);
     }
 
     /**
