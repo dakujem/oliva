@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\MaterializedPath;
 
+use Dakujem\Oliva\Exceptions\ConfigurationIssue;
+use Dakujem\Oliva\Exceptions\InvalidTreePath;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
 
 /**
  * @author Andrej Rypak <xrypak@gmail.com>
@@ -24,7 +25,7 @@ final class Path
     public static function delimited(string $delimiter, callable $accessor): callable
     {
         if (strlen($delimiter) !== 1) {
-            throw new LogicException('The delimiter must be a single character.');
+            throw new ConfigurationIssue('The delimiter must be a single character.');
         }
         return function (mixed $data, mixed $inputIndex = null, ?TreeNodeContract $node = null) use (
             $delimiter,
@@ -35,8 +36,11 @@ final class Path
                 return [];
             }
             if (!is_string($path)) {
-                // TODO improve exceptions (index/path etc)
-                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
+                throw (new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.'))
+                    ->tag('path', $path)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex)
+                    ->tag('node', $node);
             }
             $path = trim($path, $delimiter);
             if ('' === $path) {
@@ -66,8 +70,11 @@ final class Path
                 return [];
             }
             if (!is_string($path)) {
-                // TODO improve exceptions (index/path etc)
-                throw new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.');
+                throw (new InvalidTreePath('Invalid tree path returned by the accessor. A string is required.'))
+                    ->tag('path', $path)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex)
+                    ->tag('node', $node);
             }
             return str_split($path, $levelWidth);
         };

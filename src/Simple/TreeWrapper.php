@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\Simple;
 
+use Dakujem\Oliva\Exceptions\AcceptsDebugContext;
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
 
 /**
  * Simple tree builder.
@@ -58,21 +60,28 @@ final class TreeWrapper
 
         // Check for consistency.
         if (!$node instanceof MovableNodeContract) {
-            // TODO improve exceptions
-            throw new LogicException('The node factory must return a movable node instance.');
+            throw (new InvalidNodeFactoryReturnValue())
+                ->tag('node', $node)
+                ->tag('data', $data);
         }
 
         $childrenData = $childrenExtractor($data, $node);
         if (null !== $childrenData && !is_iterable($childrenData)) {
-            // TODO improve exceptions
-            throw new LogicException('Children data extractor must return an iterable collection containing children data.');
+            throw (new ExtractorReturnValueIssue('Children data extractor must return an iterable collection containing children data.'))
+                ->tag('children', $childrenData)
+                ->tag('parent', $node)
+                ->tag('data', $data);
         }
         foreach ($childrenData ?? [] as $key => $childData) {
-            $child = $this->wrapNode(
-                data: $childData,
-                nodeFactory: $nodeFactory,
-                childrenExtractor: $childrenExtractor,
-            );
+            try {
+                $child = $this->wrapNode(
+                    data: $childData,
+                    nodeFactory: $nodeFactory,
+                    childrenExtractor: $childrenExtractor,
+                );
+            } catch (AcceptsDebugContext $e) {
+                throw $e->push('nodes', $node);
+            }
             $child->setParent($node);
             $node->addChild($child, $key);
         }

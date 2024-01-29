@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\MaterializedPath\Support;
 
+use Dakujem\Oliva\Exceptions\InternalLogicException;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
@@ -58,7 +59,7 @@ final class ShadowNode extends Node implements MovableNodeContract
     public function addChild(TreeNodeContract $child, string|int|null $key = null): self
     {
         if (!$child instanceof self) {
-            throw new LogicException('Invalid use of a shadow node. Only shadow nodes can be children of shadow nodes.');
+            throw new InternalLogicException('Invalid use of a shadow node. Only shadow nodes can be children of shadow nodes.');
         }
         return parent::addChild($child, $key);
     }
@@ -66,7 +67,7 @@ final class ShadowNode extends Node implements MovableNodeContract
     public function setParent(?TreeNodeContract $parent): self
     {
         if (!$parent instanceof self) {
-            throw new LogicException('Invalid use of a shadow node. Only shadow nodes can be parents of shadow nodes.');
+            throw new InternalLogicException('Invalid use of a shadow node. Only shadow nodes can be parents of shadow nodes.');
         }
         return parent::setParent($parent);
     }

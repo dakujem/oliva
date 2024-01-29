@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\Simple;
 
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
+use Dakujem\Oliva\Exceptions\InvalidInputData;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
 
 /**
  * A trivial builder that ensures the children are bound to the respective parent.
@@ -37,16 +39,18 @@ final class NodeBuilder
 
         // Check for consistency.
         if (!$node instanceof MovableNodeContract) {
-            // TODO improve exceptions
-            throw new LogicException('The node factory must return a movable node instance.');
+            throw (new InvalidNodeFactoryReturnValue())->tag('node', $node)->tag('data', $data);
         }
 
         // Bind the children.
         foreach ($children as $key => $child) {
             // Check for consistency.
             if (!$child instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new LogicException('The children must be movable node instances.');
+                throw (new InvalidInputData('The children must be movable node instances.'))
+                    ->tag('child', $child)
+                    ->tag('key', $key)
+                    ->tag('parent', $node)
+                    ->tag('data', $data);
             }
             $child->setParent($node);
             $node->addChild($child, $key);

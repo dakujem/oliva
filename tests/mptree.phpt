@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
+use Dakujem\Oliva\Exceptions\InvalidInputData;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
+use Dakujem\Oliva\Exceptions\InvalidTreePath;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\MaterializedPath\Path;
 use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MaterializedPath\TreeBuilder;
+use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\Tree;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
-use RuntimeException;
 use Tester\Assert;
 
 require_once __DIR__ . '/setup.php';
@@ -94,36 +97,36 @@ class Item
     Assert::same([], $vectorExtractor(null));
     Assert::throws(function () use ($vectorExtractor) {
         $vectorExtractor(4.2);
-    }, RuntimeException::class); // TODO improve
+    }, InvalidTreePath::class);
 
 
     // an empty input can not result in any tree
     Assert::throws(function () use ($builder) {
         $builder->build([]);
-    }, RuntimeException::class, 'Corrupted input, no tree created.'); // TODO improve
+    }, InvalidInputData::class, 'Corrupted input, no tree created.');
 
 
     $failingBuilder = new TreeBuilder(fn() => null, fn() => []);
     Assert::throws(function () use ($failingBuilder) {
         $failingBuilder->build([null]);
-    }, LogicException::class, 'The node factory must return a movable node instance.'); // TODO improve
+    }, InvalidNodeFactoryReturnValue::class, 'The node factory must return a movable node instance (' . MovableNodeContract::class . ').');
 
     $invalidVector = new TreeBuilder(fn() => new Node(null), fn() => null);
     Assert::throws(function () use ($invalidVector) {
         $invalidVector->build([null]);
-    }, LogicException::class, 'The vector calculator must return an array.'); // TODO improve
+    }, ExtractorReturnValueIssue::class, 'The vector extractor must return an array.');
 
 
     $invalidVectorContents = new TreeBuilder(fn() => new Node(null), fn() => ['a', null]);
     Assert::throws(function () use ($invalidVectorContents) {
         $invalidVectorContents->build([null]);
-    }, LogicException::class, 'The vector may only consist of strings or integers.'); // TODO improve
+    }, ExtractorReturnValueIssue::class, 'The vector may only consist of strings or integers.');
 
 
     $duplicateVector = new TreeBuilder(fn() => new Node(null), fn() => ['any']);
     Assert::throws(function () use ($duplicateVector) {
         $duplicateVector->build([null, null]);
-    }, LogicException::class, 'Duplicate node vector: any'); // TODO improve
+    }, InvalidInputData::class, 'Duplicate node vector: any');
 
 
 

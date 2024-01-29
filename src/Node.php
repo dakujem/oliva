@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva;
 
+use Dakujem\Oliva\Exceptions\ChildKeyCollision;
 use Dakujem\Oliva\Iterator\Traversal;
-use Exception;
 use Generator;
 use IteratorAggregate;
 use JsonSerializable;
@@ -160,7 +160,10 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
         } elseif (!isset($this->children[$key])) {
             $this->children[$key] = $child;
         } else {
-            throw new Exception('Collision not allowed.');
+            throw (new ChildKeyCollision('Collision not allowed: ' . $key))
+                ->tag('parent', $this)
+                ->tag('child', $child)
+                ->tag('key', $key);
         }
         return $this;
     }

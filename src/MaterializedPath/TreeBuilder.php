@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\MaterializedPath;
 
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
+use Dakujem\Oliva\Exceptions\InvalidInputData;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MaterializedPath\Support\AlmostThere;
 use Dakujem\Oliva\MaterializedPath\Support\Register;
 use Dakujem\Oliva\MaterializedPath\Support\ShadowNode;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
-use RuntimeException;
 
 /**
  * Materialized path tree builder.
@@ -69,9 +70,11 @@ final class TreeBuilder
 
     public function build(iterable $input): TreeNodeContract
     {
-        $root = $this->processInput($input)->root();
+        $result = $this->processInput($input);
+        $root = $result->root();
         if (null === $root) {
-            throw new RuntimeException('Corrupted input, no tree created.');
+            throw (new InvalidInputData('Corrupted input, no tree created.'))
+                ->tag('result', $result);
         }
         return $root;
     }
@@ -107,30 +110,47 @@ final class TreeBuilder
 
             // Check for consistency.
             if (!$node instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new LogicException('The node factory must return a movable node instance.');
+                throw (new InvalidNodeFactoryReturnValue())
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
             }
 
             // Calculate the node's vector.
             $vector = $vectorExtractor($data, $inputIndex, $node);
             if (!is_array($vector)) {
-                // TODO improve exceptions
-                throw new LogicException('The vector calculator must return an array.');
+                throw (new ExtractorReturnValueIssue('The vector extractor must return an array.'))
+                    ->tag('vector', $vector)
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
             }
             foreach ($vector as $i) {
                 if (!is_string($i) && !is_integer($i)) {
-                    // TODO improve exceptions
-                    throw new LogicException('The vector may only consist of strings or integers.');
+                    throw (new ExtractorReturnValueIssue('The vector may only consist of strings or integers.'))
+                        ->tag('index', $i)
+                        ->tag('vector', $vector)
+                        ->tag('node', $node)
+                        ->tag('data', $data)
+                        ->tag('index', $inputIndex);
                 }
             }
 
             // Finally, connect the newly created shadow node to the shadow tree.
             // Make sure all the shadow nodes exist all the way to the root.
-            $this->connectNode(
-                new ShadowNode($node),
-                $vector,
-                $register,
-            );
+            try {
+                $this->connectNode(
+                    new ShadowNode($node),
+                    $vector,
+                    $register,
+                );
+            } catch (InvalidInputData $e) {
+                throw $e
+                    ->tag('vector', $vector)
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
+            }
         }
 
         // Pull the shadow root from the register.
@@ -148,8 +168,7 @@ final class TreeBuilder
         if (null !== $existingNode) {
             // Check for node collisions.
             if (null !== $node->realNode() && null !== $existingNode->realNode()) {
-                // TODO improve exceptions
-                throw new LogicException('Duplicate node vector: ' . implode('.', $vector));
+                throw new InvalidInputData('Duplicate node vector: ' . implode('.', $vector));
             }
             $existingNode->fill($node->realNode());
             return;

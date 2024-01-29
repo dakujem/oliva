@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\Recursive;
 
+use Dakujem\Oliva\Exceptions\ConfigurationIssue;
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
+use Dakujem\Oliva\Exceptions\InvalidInputData;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
-use InvalidArgumentException;
-use LogicException;
 
 /**
  * Recursive tree builder.
@@ -79,7 +81,7 @@ final class TreeBuilder
         } elseif (is_callable($root)) {
             $this->root = $root;
         } else {
-            throw new InvalidArgumentException();
+            throw new ConfigurationIssue('Invalid argument: The root detector must either be a string|int|null to compare against the parent refs, or a callable that returns truthy if a root is detected.');
         }
     }
 
@@ -123,25 +125,34 @@ final class TreeBuilder
 
             // Check for consistency.
             if (!$node instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new LogicException('The node factory must return a movable node instance.');
+                throw (new InvalidNodeFactoryReturnValue())->tag('node', $node)->tag('data', $data)->tag('index', $inputIndex);
             }
 
             $selfRef = $selfRefExtractor($data, $inputIndex, $node);
             $parentRef = $parentRefExtractor($data, $inputIndex, $node);
 
             if (!is_string($selfRef) && !is_int($selfRef)) {
-                // TODO improve exceptions
-                throw new LogicException('Invalid "self reference" returned by the extractor. Requires a int|string unique to the given node.');
+                throw (new ExtractorReturnValueIssue('Invalid "self reference" returned by the extractor. Requires a int|string unique to the given node.'))
+                    ->tag('ref', $selfRef)
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
             }
             if (null !== $parentRef && !is_string($parentRef) && !is_int($parentRef)) {
-                // TODO improve exceptions
-                throw new LogicException('Invalid "parent reference" returned by the extractor. Requires a int|string uniquely pointing to "self reference" of another node, or `null`.');
+                throw (new ExtractorReturnValueIssue('Invalid "parent reference" returned by the extractor. Requires a int|string uniquely pointing to "self reference" of another node, or `null`.'))
+                    ->tag('parent', $parentRef)
+                    ->tag('self', $selfRef)
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
             }
 
             if (isset($nodeRegister[$selfRef])) {
-                // TODO improve exceptions
-                throw new LogicException('Duplicate node reference: ' . $selfRef);
+                throw (new ExtractorReturnValueIssue('Duplicate node reference: ' . $selfRef))
+                    ->tag('ref', $selfRef)
+                    ->tag('node', $node)
+                    ->tag('data', $data)
+                    ->tag('index', $inputIndex);
             }
             $nodeRegister[$selfRef] = $node;
 
@@ -159,8 +170,8 @@ final class TreeBuilder
         }
 
         if (!$rootFound) {
-            // TODO improve exceptions
-            throw new LogicException('No root node found.');
+            throw (new InvalidInputData('No root node found in the data.'))
+                ->tag('nodes', $nodeRegister);
         }
 
         // The tree reconstruction pass.

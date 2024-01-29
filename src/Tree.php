@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva;
 
-use Exception;
+use Dakujem\Oliva\Exceptions\NodeNotMovable;
 
 /**
  * A helper class for high-level tree operations.
@@ -64,8 +64,7 @@ final class Tree
             return null;
         }
         if (!$parent instanceof MovableNodeContract) {
-            // TODO improve exceptions
-            throw new Exception('Parent not movable.');
+            throw new NodeNotMovable($parent);
         }
         $node->setParent(null);
         $parent->removeChild($node);
@@ -87,8 +86,7 @@ final class Tree
     ): MovableNodeContract {
         foreach ($children as $key => $child) {
             if (!$child instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new Exception('Child not movable.');
+                throw new NodeNotMovable($child);
             }
             $originalParent = self::link($child, $parent, $key);
             if (null !== $parent && null !== $onParentUnlinked) {
@@ -107,8 +105,7 @@ final class Tree
     ): void {
         foreach ($parent->children() as $key => $child) {
             if (!$child instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new Exception('Child not movable.');
+                throw new NodeNotMovable($child);
             }
             $child->setParent(null);
         }
@@ -134,8 +131,7 @@ final class Tree
         $seq = 0;
         foreach ($children as $childKey => $child) {
             if (!$child instanceof MovableNodeContract) {
-                // TODO improve exceptions
-                throw new Exception('Child not movable.');
+                throw new NodeNotMovable($child);
             }
             $newKey = null !== $key ? $key($child, $childKey, $seq) : $childKey;
             $node->addChild($child, $newKey);

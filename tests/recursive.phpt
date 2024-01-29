@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\Exceptions\InvalidInputData;
 use Dakujem\Oliva\Iterator\Filter;
 use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
 use Tester\Assert;
 
 require_once __DIR__ . '/setup.php';
@@ -114,12 +114,12 @@ class Item
 
     Assert::throws(
         fn() => $builder->build([]),
-        LogicException::class,
-        'No root node found.',
+        InvalidInputData::class,
+        'No root node found in the data.',
     );
     Assert::throws(
         fn() => $builder->build([new Item(id: 7, parent: 42)]),
-        LogicException::class,
-        'No root node found.',
+        InvalidInputData::class,
+        'No root node found in the data.',
     );
 })();
