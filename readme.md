@@ -294,6 +294,9 @@ Using a manual node builder:
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Simple\NodeBuilder;
 
+// Tell the builder how to create a node.
+// The `$item` parameter of the node factory
+// will contain the first argument to each `NodeBuilder::node` call.
 $proxy = new NodeBuilder(
     node: fn(mixed $item) => new Node($item),
 );
@@ -354,6 +357,33 @@ Tree::linkChildren(node: $root = new Node('root'), children: [
 ```
 
 
+## Moving nodes around
+
+TL;DR Use the `Tree::link` static method.
+
+In some cases it is sufficient to use the low-level interface of nodes (`setParent`, `addChild`, `removeChild` methods),
+but in most cases the `Tree::link` works better:
+
+```php
+use Dakujem\Oliva\Iterator\Filter;
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Seed;
+use Dakujem\Oliva\Tree;
+
+// Create a find-by-id function (see Iterators section below):
+$findById = fn(int $id, Node $tree) => Seed::firstOf(
+    new Filter($tree, fn(Node $node) => $node->data()?->id === $id)
+);
+
+// Move node with ID 7 into node ID 14:
+$node = $findById(7, $root);
+$parent = $findById(14, $root);
+Tree::link($node, $parent);
+```
+
+The `Tree::link` call will take care of all the relations: unlinking the original parent and linking the subtree to the new one.
+
+
 ## Iterators
 
 Oliva provides iterators for tree traversal and a filter iterator.
@@ -401,7 +431,6 @@ foreach($filter as $node){
 }
 
 // Find the first node that matches a criterion (data with ID = 42).
-$filter = new Filter($root, fn(Node $node): bool => $node->data()?->id === 42);
 $node = Seed::firstOf(new Filter(
     input: $root,
     accept: fn(Node $node): bool => $node->data()?->id === 42),
@@ -415,6 +444,41 @@ $node = Seed::firstOf(new Filter(
 > Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
 > otherwise you may experience unexpected.
 >
+
+
+### Searching for specific nodes
+
+Oliva does not provide a direct way to search for specific nodes, but it is trivial to create one yourself:
+
+```php
+use Dakujem\Oliva\Iterator\Filter;
+use Dakujem\Oliva\Node;
+use Dakujem\Oliva\Seed;
+
+// Create a find-by-id function.
+$findById = fn(int $id, Node $tree): ?Node => Seed::firstOf(
+    new Filter($tree, fn(Node $node) => $node->data()?->id === $id)
+);
+
+// Search for any node by ID.
+$node_42 = $findById(42, $root);
+
+```
+
+A class may be appropriate too...
+```php
+class TreeFinder
+{
+    public function __construct(
+        public Node $tree,
+    ) {
+    }
+    
+    public function byId(int $id){ ... }
+    
+    public function byName(string $name){ ... }
+}
+```
 
 
 ### Node keys
@@ -549,6 +613,7 @@ foreach(Seed::omitRoot($root) as $node) {  // The root node is omitted from the 
 }
 ```
 
+
 ### Recursive tree without root data
 
 Similar situation may happen when using the recursive builder on a subtree, when the root node of the subtree has a non-null parent.
@@ -594,7 +659,7 @@ If migrating from the previous library ([`oliva/tree`](https://github.com/dakuje
 - the new builders not automatically adding an empty root node
 - the new iterators iterating over root node
 
-For both, see "Materialized path tree without root data" and "Recursive tree without root data" sections above.
+For both, see "Materialized path tree without root data" and "Recursive tree without root data" sections in the "Cookbook" section above.
 
 **Node classes**
 
@@ -616,6 +681,6 @@ composer test
 
 ## Contributing
 
-Ideas or contribution is welcome. Please send a PR or submit an issue.
+Ideas, issues or code contribution is welcome. Please send a PR or submit an issue.
 
 And if you happen to like the library, give it a star and spread the word 🙏.
