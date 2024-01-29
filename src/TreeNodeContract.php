@@ -12,11 +12,6 @@ namespace Dakujem\Oliva;
 interface TreeNodeContract
 {
     /**
-     * Get the node's parent, if any.
-     */
-    public function parent(): ?TreeNodeContract;
-
-    /**
      * Get the node's children.
      *
      * The implementations MUST ensure the keys are valid PHP array keys (only int or string).
@@ -24,6 +19,11 @@ interface TreeNodeContract
      * @return iterable<int|string,TreeNodeContract>
      */
     public function children(): iterable;
+
+    /**
+     * Get the node's parent, if any.
+     */
+    public function parent(): ?TreeNodeContract;
 
     /**
      * Discover whether the given node is one of this node's children (or the given key points to one of them).

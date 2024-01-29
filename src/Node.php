@@ -10,25 +10,26 @@ use IteratorAggregate;
 use JsonSerializable;
 
 /**
- * Basic data node implementation.
+ * Flexible data node implementation.
+ *
+ * Note: Iterating over a node will iterate over the whole subtree in pre-order DFS.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, IteratorAggregate, JsonSerializable
 {
+    /**
+     * Create a data node.
+     *
+     * Note that passing children or parent here does NOT make a link the other way around. Use the Tree utility for that.
+     * @see Tree::link()
+     * @see Tree::linkChildren()
+     */
     public function __construct(
         protected mixed $data,
-        protected ?TreeNodeContract $parent = null,
         protected array $children = [],
+        protected ?TreeNodeContract $parent = null,
     ) {
-    }
-
-    /**
-     * Get the node's parent, if any.
-     */
-    public function parent(): ?TreeNodeContract
-    {
-        return $this->parent;
     }
 
     /**
@@ -39,6 +40,14 @@ class Node implements TreeNodeContract, DataNodeContract, MovableNodeContract, I
     public function children(): array
     {
         return $this->children;
+    }
+
+    /**
+     * Get the node's parent, if any.
+     */
+    public function parent(): ?TreeNodeContract
+    {
+        return $this->parent;
     }
 
     /**
