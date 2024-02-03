@@ -113,10 +113,15 @@ final class Tree
     }
 
     /**
+     * Sorts children and recalculates their child keys of all tree nodes recursively.
      *
-     * Usage of <=> (spaceship) operator to compare based on path props:
-     * fn(Node $a, Node $b) => $a->data()->path <=> $b->data()->path
+     * Both operations are optional:
+     * - If the key-calculating function is not passed in, the child keys will not be altered.
+     * - If the sorting function is not passed in, the order of the nodes will not change.
      *
+     * Example usage of <=> (spaceship) operator to sort children based on path props:
+     * `fn(Node $a, Node $b) => '!'.$a->data()->path <=> '!'.$b->data()->path`
+     * (Note the `!` prefix above is to prevent issues with "000" <=> "000000" being 0, incorrect, while "!000" <=> "!000000" being -1, correct.)
      */
     public static function reindexTree(
         MovableNodeContract $node,
