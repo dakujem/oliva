@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dakujem\Test;
 
 use Dakujem\Oliva\Exceptions\AcceptsDebugContext;
+use Dakujem\Oliva\Exceptions\ChildKeyCollision;
 use Dakujem\Oliva\Exceptions\Context;
 use Dakujem\Oliva\Exceptions\InvalidInputData;
 use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
@@ -284,3 +285,20 @@ require_once __DIR__ . '/setup.php';
     }, InvalidNodeFactoryReturnValue::class, 'The node factory must return a movable node instance (Dakujem\Oliva\MovableNodeContract).');
 })();
 
+
+// A node does not allow colliding child keys
+(function () {
+    $node = new Node(null);
+    $node->addChild(new Node(null), 'key');
+    Assert::throws(function () use ($node) {
+        $node->addChild(new Node(null), 'key');
+    }, ChildKeyCollision::class, 'Collision not allowed: key');
+
+    // The current implementation does not allow this even when the same node is being added with the same key.
+    // This is intentional, for simplicity. Tree::link covers this cases without hassle.
+    $child = new Node(null);
+    $node->addChild($child, 'another');
+    Assert::throws(function () use ($node, $child) {
+        $node->addChild($child, 'another');
+    }, ChildKeyCollision::class, 'Collision not allowed: another');
+})();
