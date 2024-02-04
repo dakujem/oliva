@@ -60,6 +60,60 @@ require_once __DIR__ . '/setup.php';
 })();
 
 (function () {
-    //
+    $node = new Node(null, parent: $parent = new Node(null));
+
+    Assert::same($parent, $node->parent());
+    Assert::same([], $parent->children());
+
+    Tree::link($node, $parent);
+    Assert::same($parent, $node->parent());
+    Assert::same([$node], $parent->children());
+})();
+
+(function () {
+    $parent = new Node(null, children: [
+        $node = new Node(null),
+    ]);
+
+    Assert::same(null, $node->parent());
+    Assert::same([$node], $parent->children());
+
+    Tree::link($node, $parent);
+    Assert::same($parent, $node->parent());
+    Assert::same([$node], $parent->children());
+})();
+
+(function () {
+    $proxy = new NodeBuilder(fn(mixed $data) => new Node($data));
+
+    $parent = $proxy->node(null, [
+        'original' => $node = new Node(null),
+    ]);
+
+    Assert::same($parent, $node->parent());
+    Assert::same(['original' => $node], $parent->children());
+
+    Tree::link($node, $parent, 'new-key');
+    Assert::same($parent, $node->parent());
+    Assert::same(['new-key' => $node], $parent->children());
+})();
+
+(function () {
+    $proxy = new NodeBuilder(fn(mixed $data) => new Node($data));
+
+    $parent = $proxy->node(null, [
+        'original' => $node = new Node(null),
+    ]);
+
+    Assert::same($parent, $node->parent());
+    Assert::same(['original' => $node], $parent->children());
+
+    Tree::link($node, $parent, 'original');
+    Assert::same($parent, $node->parent());
+    Assert::same(['original' => $node], $parent->children());
+
+    Tree::link($node, $parent);
+    Assert::same($parent, $node->parent());
+    Assert::same(['original' => $node], $parent->children());
 })();
 

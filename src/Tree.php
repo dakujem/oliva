@@ -162,8 +162,12 @@ final class Tree
         string|int|null $key = null
     ): void {
         $existing = $parent->childKey($child);
-        if (null !== $existing && $parent->child($existing) === $child) {
-            // Already linked.
+        if (
+            null !== $existing &&
+            $parent->child($existing) === $child &&
+            (null === $key || $existing === $key)
+        ) {
+            // Already linked (with the same key or key not important).
             return;
         }
         $parent->addChild($child, $key);
