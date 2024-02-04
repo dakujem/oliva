@@ -6,6 +6,8 @@ namespace Dakujem\Test;
 
 use Dakujem\Oliva\Exceptions\AcceptsDebugContext;
 use Dakujem\Oliva\Exceptions\Context;
+use Dakujem\Oliva\Exceptions\InvalidInputData;
+use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Simple\NodeBuilder;
 use Dakujem\Oliva\Simple\TreeWrapper;
@@ -265,4 +267,20 @@ require_once __DIR__ . '/setup.php';
 })();
 
 
+// Test some edge cases of Path::fixed
+(function () {
+    Assert::throws(function () {
+        $builder = new NodeBuilder(fn(mixed $data) => new Node($data));
+        $builder->node('root', [
+            'foo',
+        ]);
+    }, InvalidInputData::class, 'Each child must be a movable node instance (Dakujem\Oliva\MovableNodeContract).');
+
+    Assert::throws(function () {
+        $builder = new NodeBuilder(fn(mixed $data) => new NotMovable($data));
+        $builder->node('root', [
+            'foo',
+        ]);
+    }, InvalidNodeFactoryReturnValue::class, 'The node factory must return a movable node instance (Dakujem\Oliva\MovableNodeContract).');
+})();
 

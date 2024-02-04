@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\Simple;
 
-use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
 use Dakujem\Oliva\Exceptions\InvalidInputData;
 use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MovableNodeContract;
@@ -46,7 +45,7 @@ final class NodeBuilder
         foreach ($children as $key => $child) {
             // Check for consistency.
             if (!$child instanceof MovableNodeContract) {
-                throw (new InvalidInputData('The children must be movable node instances.'))
+                throw (new InvalidInputData('Each child must be a movable node instance (' . MovableNodeContract::class . ').'))
                     ->tag('child', $child)
                     ->tag('key', $key)
                     ->tag('parent', $node)

@@ -75,21 +75,29 @@ final class Tree
      * Attaches a bunch of nodes to a parent,
      * establishing both the child-to-parent link and adding the child to the parent's children list.
      *
-     * Does NOT remove the original children, collisions may occur.
+     * Does NOT remove the original children of the parent node ($parent).
      *
      * The callable $onParentUnlinked may be used to process cases where the original node's parent is unlinked.
+     *
+     * The call does not use the keys in the given list of children.
+     * However, those may be used via the $key callable, in fact, any valid keys may be returned.
      */
     public static function linkChildren(
         MovableNodeContract $parent,
         iterable $children,
         ?callable $onParentUnlinked = null,
+        ?callable $key = null,
     ): MovableNodeContract {
-        foreach ($children as $key => $child) {
+        foreach ($children as $index => $child) {
             if (!$child instanceof MovableNodeContract) {
                 throw new NodeNotMovable($child);
             }
-            $originalParent = self::link($child, $parent, $key);
-            if (null !== $parent && null !== $onParentUnlinked) {
+            $originalParent = self::link(
+                node: $child,
+                parent: $parent,
+                key: null !== $key ? $key($child, $index) : null,
+            );
+            if (null !== $originalParent && null !== $onParentUnlinked) {
                 $onParentUnlinked($originalParent, $child);
             }
         }

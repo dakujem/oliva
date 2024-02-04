@@ -101,3 +101,67 @@ final class Preset
         return $root;
     }
 }
+
+class NotNodeAtAll
+{
+    public function __construct(
+        public mixed $data
+    ) {
+    }
+}
+
+class NotMovable implements TreeNodeContract
+{
+    public function __construct(
+        public mixed $data
+    ) {
+    }
+
+    public function children(): iterable
+    {
+        // foo
+        return [];
+    }
+
+    public function parent(): ?TreeNodeContract
+    {
+        // foo
+        return null;
+    }
+
+    public function hasChild(int|string|TreeNodeContract $child): bool
+    {
+        // foo
+        return false;
+    }
+
+    public function child(int|string $key): ?TreeNodeContract
+    {
+        // foo
+        return null;
+    }
+
+    public function childKey(TreeNodeContract $node): string|int|null
+    {
+        // foo
+        return null;
+    }
+
+    public function isLeaf(): bool
+    {
+        // foo
+        return true;
+    }
+
+    public function isRoot(): bool
+    {
+        // foo
+        return true;
+    }
+
+    public function root(): TreeNodeContract
+    {
+        // foo
+        return $this;
+    }
+}
