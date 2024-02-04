@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Dakujem\Oliva\Simple;
 
 use Dakujem\Oliva\Exceptions\AcceptsDebugContext;
+use Dakujem\Oliva\Exceptions\CallableIssue;
 use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
 use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\TreeNodeContract;
+use Throwable;
 
 /**
  * Simple tree builder.
@@ -55,22 +57,36 @@ final class TreeWrapper
         callable $nodeFactory,
         callable $childrenExtractor,
     ): MovableNodeContract {
-        // Create a node using the provided factory.
-        $node = $nodeFactory($data);
+        try {
+            // Create a node using the provided factory.
+            $node = $nodeFactory($data);
 
-        // Check for consistency.
-        if (!$node instanceof MovableNodeContract) {
-            throw (new InvalidNodeFactoryReturnValue())
-                ->tag('node', $node)
-                ->tag('data', $data);
+            // Check for consistency.
+            if (!$node instanceof MovableNodeContract) {
+                throw (new InvalidNodeFactoryReturnValue())
+                    ->tag('node', $node)
+                    ->tag('data', $data);
+            }
+
+            $childrenData = $childrenExtractor($data, $node);
+        } catch (Throwable $e) {
+            if (!$e instanceof AcceptsDebugContext) {
+                // wrap the exception so that it supports context decoration
+                $e = (new CallableIssue(
+                    message: $e->getMessage(),
+                    code: $e->getCode(),
+                    previous: $e,
+                ));
+            }
+            throw $e->push('nodes', $node ?? null);
         }
 
-        $childrenData = $childrenExtractor($data, $node);
         if (null !== $childrenData && !is_iterable($childrenData)) {
             throw (new ExtractorReturnValueIssue('Children data extractor must return an iterable collection containing children data.'))
                 ->tag('children', $childrenData)
                 ->tag('parent', $node)
-                ->tag('data', $data);
+                ->tag('data', $data)
+                ->push('nodes', $node);
         }
         foreach ($childrenData ?? [] as $key => $childData) {
             try {

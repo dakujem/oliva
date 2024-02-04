@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\Exceptions\AcceptsDebugContext;
+use Dakujem\Oliva\Exceptions\Context;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Simple\NodeBuilder;
 use Dakujem\Oliva\Simple\TreeWrapper;
@@ -78,11 +80,65 @@ require_once __DIR__ . '/setup.php';
             ],
         ],
     ];
-    $wrapper = new TreeWrapper(fn(array $raw) => new Node($raw['data']), fn(array $raw) => $raw['children'] ?? null);
+    $wrapper = new TreeWrapper(
+        fn(array $raw) => new Node($raw['data']),
+        fn(array $raw): ?iterable => $raw['children'] ?? null,
+    );
     $root = $wrapper->wrap($data);
 
     // pre-order
     Assert::same('FBADCEGIH', TreeTesterTool::flatten($root));
+
+    $faulty = $data;
+    $thrown = false;
+    try {
+        $faulty['children'][1]['children'][] = ['data' => 'this will cause type error inside the extractor', 'children' => 42];
+        $wrapper->wrap($faulty);
+    } catch (AcceptsDebugContext $e) {
+        /** @var Context $context */
+        $context = $e->context;
+        Assert::count(3, $context->bag['nodes'] ?? []);
+        Assert::same(
+            ['this will cause type error inside the extractor', 'G', 'F'],
+            array_map(fn(Node $node) => $node->data(), $context->bag['nodes']),
+        );
+        $thrown = true;
+    }
+    Assert::true($thrown, 'The catch block has to run');
+
+    $faultyWrapper = new TreeWrapper(
+        fn(array $raw) => new Node($raw['data']),
+        function (array $raw): mixed {
+            if (isset($raw['children']) && !is_iterable($raw['children'] ?? null)) {
+                return 'fault';
+            }
+            return $raw['children'] ?? null;
+        },
+    );
+
+    $thrown = false;
+    try {
+        $faultyWrapper->wrap($faulty);
+    } catch (AcceptsDebugContext $e) {
+        /** @var Context $context */
+        $context = $e->context;
+        Assert::count(3, $context->bag['nodes'] ?? []);
+        Assert::same(
+            ['this will cause type error inside the extractor', 'G', 'F'],
+            array_map(fn(Node $node) => $node->data(), $context->bag['nodes']),
+        );
+        // the "children" extracted by the extractor
+        Assert::same('fault', $context->bag['children'] ?? null);
+        // the data that was present
+        Assert::same([
+            'data' => 'this will cause type error inside the extractor',
+            'children' => 42,
+        ], $context->bag['data'] ?? null);
+        // ref to the parent node
+        Assert::type(Node::class, $context->bag['parent'] ?? null);
+        $thrown = true;
+    }
+    Assert::true($thrown, 'The catch block has to run');
 })();
 
 

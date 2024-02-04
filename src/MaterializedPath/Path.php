@@ -61,6 +61,9 @@ final class Path
      */
     public static function fixed(int $levelWidth, callable $accessor): callable
     {
+        if ($levelWidth < 1) {
+            throw new ConfigurationIssue('The level width must be a positive integer.');
+        }
         return function (mixed $data, mixed $inputIndex = null, ?TreeNodeContract $node = null) use (
             $levelWidth,
             $accessor,
