@@ -85,8 +85,8 @@ final class Tree
     public static function linkChildren(
         MovableNodeContract $parent,
         iterable $children,
-        ?callable $onParentUnlinked = null,
         ?callable $key = null,
+        ?callable $onParentUnlinked = null,
     ): MovableNodeContract {
         foreach ($children as $index => $child) {
             if (!$child instanceof MovableNodeContract) {

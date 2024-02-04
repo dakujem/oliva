@@ -173,7 +173,7 @@ require_once __DIR__ . '/setup.php';
     Assert::same($b, $e->parent());
     Assert::same([$d, $e], $b->children());
     Assert::same([], $d->children());
-    Tree::linkChildren($d, $e, function (TreeNodeContract $originalParent) use (&$hasRun, $b) {
+    Tree::linkChildren($d, $e, onParentUnlinked: function (TreeNodeContract $originalParent) use (&$hasRun, $b) {
         $hasRun = true;
         // B is the original parent of E
         Assert::same($b, $originalParent);

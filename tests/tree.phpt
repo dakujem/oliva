@@ -52,11 +52,20 @@ require_once __DIR__ . '/setup.php';
     Assert::same($one, $shouldBeOne);
 
     $counter = 0;
-    Tree::linkChildren($one, $childrenOfTwo, function ($parent) use (&$counter, $two) {
+    Tree::linkChildren($one, $childrenOfTwo, onParentUnlinked: function ($parent) use (&$counter, $two) {
         Assert::same($two, $parent);
         $counter += 1;
     });
     Assert::same(2, $counter);
+
+    // note: the parent has changed to "one"
+    Tree::linkChildren($one, $childrenOfTwo, key: fn(Node $node) => $node->data()); // key by data
+    Assert::same([
+        0 => $b,
+        1 => $c,
+        'Y' => $y,
+        'Z' => $z,
+    ], $one->children());
 })();
 
 (function () {
