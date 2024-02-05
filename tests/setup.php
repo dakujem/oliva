@@ -50,6 +50,20 @@ final class TreeTesterTool
         }
         return $carry;
     }
+
+    public static function visualize(TreeNodeContract $root, callable $iteratorDecorator = null):array
+    {
+        $it = new PreOrderTraversal($root, fn(
+            TreeNodeContract $node,
+            array $vector,
+            int $seq,
+            int $counter,
+        ): string => '>' . implode('.', $vector));
+        return array_map(function (Node $item): string {
+            $data = $item->data();
+            return null !== $data ? "[$data->id]" : 'root';
+        }, iterator_to_array($iteratorDecorator ? $iteratorDecorator($it) : $it));
+    }
 }
 
 final class Manipulator

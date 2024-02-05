@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
 use Dakujem\Oliva\Exceptions\InvalidInputData;
 use Dakujem\Oliva\Iterator\Filter;
-use Dakujem\Oliva\Iterator\PreOrderTraversal;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Recursive\TreeBuilder;
 use Dakujem\Oliva\Seed;
-use Dakujem\Oliva\TreeNodeContract;
 use Tester\Assert;
 
 require_once __DIR__ . '/setup.php';
@@ -18,34 +17,21 @@ require_once __DIR__ . '/setup.php';
 class Item
 {
     public function __construct(
-        public int $id,
-        public ?int $parent,
+        public mixed $id,
+        public mixed $parent,
     ) {
     }
 }
 
 (function () {
-    $toArray = function (TreeNodeContract $root, callable $mod = null) {
-        $it = new PreOrderTraversal($root, fn(
-            TreeNodeContract $node,
-            array $vector,
-            int $seq,
-            int $counter,
-        ): string => '>' . implode('.', $vector));
-        return array_map(function (Node $item): string {
-            $data = $item->data();
-            return null !== $data ? "[$data->id]" : 'root';
-        }, iterator_to_array($mod ? $mod($it) : $it));
-    };
-
     $data = [
         new Item(id: 0, parent: null),
     ];
 
     $builder = new TreeBuilder(
-        node: fn(?Item $item) => new Node($item),
-        selfRef: fn(?Item $item) => $item?->id,
-        parentRef: fn(?Item $item) => $item?->parent,
+        node: fn(?Item $item): Node => new Node($item),
+        selfRef: fn(?Item $item): int => $item?->id,
+        parentRef: fn(?Item $item): ?int => $item?->parent,
     );
 
     $tree = $builder->build(
@@ -54,7 +40,7 @@ class Item
 
     Assert::same([
         '>' => '[0]',
-    ], $toArray($tree));
+    ], TreeTesterTool::visualize($tree));
 
 
     $data = [
@@ -67,12 +53,6 @@ class Item
         new Item(id: 6, parent: 5),
         new Item(id: 3, parent: 4),
     ];
-
-    $builder = new TreeBuilder(
-        node: fn(?Item $item) => new Node($item),
-        selfRef: fn(?Item $item) => $item?->id,
-        parentRef: fn(?Item $item) => $item?->parent,
-    );
 
     $tree = $builder->build(
         input: $data,
@@ -87,7 +67,7 @@ class Item
         '>1' => '[5]',
         '>1.0' => '[6]',
         '>2' => '[3]',
-    ], $toArray($tree));
+    ], TreeTesterTool::visualize($tree));
 
 
     //new Filter($it, Seed::omitNull());
@@ -100,7 +80,7 @@ class Item
         '>1' => '[5]',
         '>1.0' => '[6]',
         '>2' => '[3]',
-    ], $toArray($tree, $withoutRoot));
+    ], TreeTesterTool::visualize($tree, $withoutRoot));
 
     $filter = new Filter($collection = [
         new Node(null),
@@ -115,11 +95,81 @@ class Item
     Assert::throws(
         fn() => $builder->build([]),
         InvalidInputData::class,
-        'No root node found in the data.',
+        'No root node found in the input collection.',
     );
     Assert::throws(
         fn() => $builder->build([new Item(id: 7, parent: 42)]),
         InvalidInputData::class,
-        'No root node found in the data.',
+        'No root node found in the input collection.',
+    );
+})();
+
+
+(function () {
+    $builder = new TreeBuilder(
+        node: fn(?Item $item): Node => new Node($item),
+        selfRef: fn(?Item $item): mixed => $item?->id,
+        parentRef: fn(?Item $item): mixed => $item?->parent,
+        root: fn(?Item $item): bool => $item->id === 'unknown',
+    );
+
+    /** @var Node $root */
+    $root = $builder->build([
+        new Item(id: 'frodo', parent: 'unknown'),
+        new Item(id: 'sam', parent: 'unknown'),
+        new Item(id: 'gandalf', parent: 'unknown'),
+        new Item(id: 'unknown', parent: 'unknown'),
+    ]);
+
+    Assert::same('unknown', $root->data()?->id);
+    Assert::same('unknown', $root->data()?->parent);
+    Assert::count(3, $root->children());
+
+    Assert::same([
+        '>' => '[unknown]',
+        '>0' => '[frodo]',
+        '>1' => '[sam]',
+        '>2' => '[gandalf]',
+    ], TreeTesterTool::visualize($root));
+})();
+
+(function () {
+    $builder = new TreeBuilder(
+        node: fn(?Item $item): Node => new Node($item),
+        selfRef: fn(?Item $item): mixed => $item?->id,
+        parentRef: fn(?Item $item): mixed => $item?->parent,
+    );
+
+    Assert::throws(
+        function () use ($builder) {
+            $builder->build([
+                new Item(id: null, parent: null),
+            ]);
+        },
+        ExtractorReturnValueIssue::class,
+        'Invalid "self reference" returned by the extractor. Requires a int|string unique to the given node.',
+    );
+
+    Assert::throws(
+        function () use ($builder) {
+            $builder->build([
+                new Item(id: 123, parent: 4.2),
+            ]);
+        },
+        ExtractorReturnValueIssue::class,
+        'Invalid "parent reference" returned by the extractor. Requires a int|string uniquely pointing to "self reference" of another node, or `null`.',
+    );
+
+
+    Assert::throws(
+        function () use ($builder) {
+            $builder->build([
+                new Item(id: 123, parent: null),
+                new Item(id: 42, parent: 123),
+                new Item(id: 42, parent: 5),
+            ]);
+        },
+        ExtractorReturnValueIssue::class,
+        'Duplicate node reference: 42',
     );
 })();

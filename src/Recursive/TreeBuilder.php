@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dakujem\Oliva\Recursive;
 
-use Dakujem\Oliva\Exceptions\ConfigurationIssue;
 use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
 use Dakujem\Oliva\Exceptions\InvalidInputData;
 use Dakujem\Oliva\Exceptions\InvalidNodeFactoryReturnValue;
@@ -78,10 +77,8 @@ final class TreeBuilder
                 int|string|null $parentReference,
                 int|string|null $selfReference,
             ): bool => $parentReference === $root;
-        } elseif (is_callable($root)) {
-            $this->root = $root;
         } else {
-            throw new ConfigurationIssue('Invalid argument: The root detector must either be a string|int|null to compare against the parent refs, or a callable that returns truthy if a root is detected.');
+            $this->root = $root;
         }
     }
 
@@ -170,7 +167,7 @@ final class TreeBuilder
         }
 
         if (!$rootFound) {
-            throw (new InvalidInputData('No root node found in the data.'))
+            throw (new InvalidInputData('No root node found in the input collection.'))
                 ->tag('nodes', $nodeRegister);
         }
 
@@ -189,6 +186,8 @@ final class TreeBuilder
     }
 
     /**
+     * Recursive.
+     *
      * @param array<string|int, MovableNodeContract> $nodeRegister
      * @param array<string|int, array<int, string|int>> $childRegister
      */

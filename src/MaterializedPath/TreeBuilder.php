@@ -73,7 +73,7 @@ final class TreeBuilder
         $result = $this->processInput($input);
         $root = $result->root();
         if (null === $root) {
-            throw (new InvalidInputData('Corrupted input, no tree created.'))
+            throw (new InvalidInputData('No root node found in the input collection.'))
                 ->tag('result', $result);
         }
         return $root;
@@ -157,9 +157,6 @@ final class TreeBuilder
         return $register->pull([]);
     }
 
-    /**
-     * Recursion.
-     */
     private function connectNode(ShadowNode $node, array $vector, Register $register): void
     {
         $existingNode = $register->pull($vector);
@@ -181,6 +178,9 @@ final class TreeBuilder
         $this->connectAncestry($node, $vector, $register);
     }
 
+    /**
+     * Recursive.
+     */
     private function connectAncestry(ShadowNode $node, array $vector, Register $register): void
     {
         // When the node is a root itself, abort recursion.

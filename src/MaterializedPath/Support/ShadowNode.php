@@ -8,7 +8,6 @@ use Dakujem\Oliva\Exceptions\InternalLogicException;
 use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\TreeNodeContract;
-use LogicException;
 
 /**
  * Shadow node used internally when building materialized path trees.
@@ -18,13 +17,9 @@ use LogicException;
 final class ShadowNode extends Node implements MovableNodeContract
 {
     public function __construct(
-        ?MovableNodeContract $node,
-        ?ShadowNode $parent = null,
+        ?MovableNodeContract $node
     ) {
-        parent::__construct(
-            data: $node,
-            parent: $parent,
-        );
+        parent::__construct(data: $node);
     }
 
     /**
