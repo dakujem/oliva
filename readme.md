@@ -694,7 +694,7 @@ For both, see "Materialized path tree without root data" and "Recursive tree wit
 Neither magic props proxying nor array access of the `Oliva\Utils\Tree\Node\Node` are supported.  
 Migrating to the new `Dakujem\Oliva\Node` class is recommended instead of attempting to recreate the old behaviour.
 
-The `Dakujem\Oliva\Node` is very similar to `Oliva\Utils\Tree\Node\SimpleNode`, however,
+The `Dakujem\Oliva\Node` is very similar to `Oliva\Utils\Tree\Node\SimpleNode`,
 migrating from that one should be trivial (migrate the getter/setter usage).
 
 
