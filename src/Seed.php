@@ -22,15 +22,27 @@ use IteratorIterator;
 final class Seed
 {
     /**
-     * Create a merged iterable.
+     * Chain multiple iterable collections into a single one.
+     * The input collections are not actually merged, but a generator is produced.
+     *
      * Can be used to prepend or append data from multiple source collections.
-     * The data is not actually merged, but a generator is produced.
      */
-    public static function merged(iterable ...$input): Generator
+    public static function chain(iterable ...$input): Generator
     {
         foreach ($input as $iterable) {
             yield from $iterable;
         }
+    }
+
+    /**
+     * An alias of `chain`.
+     *
+     * Creates a "merged" iterable from multiple collections.
+     * The input collections are not actually merged, but a generator is produced.
+     */
+    public static function merged(iterable ...$input): Generator
+    {
+        return self::chain(...$input);
     }
 
     /**
