@@ -11,6 +11,7 @@ Please report any issues.
 
 - Added `Seed::chain` method for iterable collection chaining: the new method takes over `Seed::merged` which becomes its alias for backward compatibility.
 - Deprecated `Seed::merged`, use `Seed::chain` instead.
+- Fixed repeated calls to `ShadowNode::reconstructRealTree` causing index collisions.
 
 
 ## v1.0

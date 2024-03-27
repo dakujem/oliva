@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\DataNodeContract;
 use Dakujem\Oliva\Exceptions\ExtractorReturnValueIssue;
 use Dakujem\Oliva\Exceptions\InternalLogicException;
 use Dakujem\Oliva\Exceptions\InvalidInputData;
@@ -17,6 +18,7 @@ use Dakujem\Oliva\MovableNodeContract;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Seed;
 use Dakujem\Oliva\Tree;
+use Dakujem\Oliva\TreeNodeContract;
 use Tester\Assert;
 
 require_once __DIR__ . '/setup.php';
@@ -258,6 +260,12 @@ class Item
     Assert::count(2, $node->children());
     Assert::same('007000', $node->child(0)->data());
     Assert::same('007001', $node->child(1)->data());
+
+    // The reconstruction works even when the tree contains nodes not connected to the root.
+    Assert::same(null, $almost->root());
+    Assert::same(null, $almost->shadow()->data());
+    Assert::same($node, $almost->shadow()->child(0)->child(0)->data()->parent());
+    Assert::same($node, $almost->shadow()->child(0)->child(1)->data()->parent());
 })();
 
 (function () {
@@ -284,3 +292,31 @@ class Item
         $shadow->setParent(new Node('new parent'));
     }, InternalLogicException::class, 'Invalid use of a shadow node. Only shadow nodes can be parents of shadow nodes.');
 })();
+
+// This test checks an edge-case where reconstructing a shadow root led to an index collision.
+(function () {
+    $builder = new TreeBuilder(
+        node: fn(?string $path) => new Node($path),
+        vector: Path::fixed(
+            3,
+            fn(?string $path) => $path,
+        ),
+    );
+
+    $normalizer = function (TreeNodeContract $node) use (&$normalizer): array {
+        return [
+            'data' => $node instanceof DataNodeContract ? $node->data() : null,
+            'children' => array_map(fn($child) => $normalizer($child), $node->children()),
+        ];
+    };
+
+    $almost = $builder->processInput(
+        input: ['', '007000', '006', '007', '007001', '005001', '004', '005001009',],
+    );
+
+    Assert::same(
+        $normalizer($almost->root()),
+        $normalizer($almost->shadow()->reconstructRealTree()),
+    );
+})();
+

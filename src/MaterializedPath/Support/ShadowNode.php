@@ -34,11 +34,12 @@ final class ShadowNode extends Node implements MovableNodeContract
     public function reconstructRealTree(): ?TreeNodeContract
     {
         $realNode = $this->realNode();
+        $realNode?->removeChildren();
         /** @var self $child */
         foreach ($this->children() as $index => $child) {
             $realChild = $child->realNode();
-            if (null !== $realNode && null !== $realChild) {
-                $realNode->addChild($realChild, $index);
+            if (null !== $realChild) {
+                $realNode?->addChild($realChild, $index);
                 $realChild->setParent($realNode);
             }
             $child->reconstructRealTree();
