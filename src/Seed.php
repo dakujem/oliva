@@ -23,7 +23,9 @@ final class Seed
 {
     /**
      * Chain multiple iterable collections into a single one.
-     * The input collections are not actually merged, but a generator is produced.
+     *
+     * The input collections are not actually merged,
+     * but a generator that iterates over all the elements of all the input collections is returned.
      *
      * Can be used to prepend or append data from multiple source collections.
      */
@@ -39,6 +41,8 @@ final class Seed
      *
      * Creates a "merged" iterable from multiple collections.
      * The input collections are not actually merged, but a generator is produced.
+     *
+     * @deprecated Use `Seed::chain` method.
      */
     public static function merged(iterable ...$input): Generator
     {

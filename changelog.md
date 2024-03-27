@@ -9,7 +9,8 @@ Please report any issues.
 
 ## v1.1.x
 
-- Added `Seed::chain` method for iterable collection chaining: the new method takes over `Seed::merged` which becomes its alias.
+- Added `Seed::chain` method for iterable collection chaining: the new method takes over `Seed::merged` which becomes its alias for backward compatibility.
+- Deprecated `Seed::merged`, use `Seed::chain` instead.
 
 
 ## v1.0
