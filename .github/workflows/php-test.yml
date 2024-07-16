@@ -22,6 +22,9 @@ jobs:
           - php: '8.1'
           - php: '8.2'
           - php: '8.3'
+          - php: '8.4'
+            allow_failure: true
+            extra_require: 'nette/tester:dev-master'
     # Steps represent a sequence of tasks that will be executed as part of the job
     name: "PHP${{ matrix.php }} ${{ matrix.composer-flags }}"
     steps:
@@ -47,17 +50,26 @@ jobs:
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-php-
 
+      - name: Override packages
+        #if: matrix.php == '8.4'
+        if: matrix.extra_require
+        run: composer require --dev ${{ matrix.extra_require }}
+
       - name: Update composer dependencies
         run: composer update -o --no-interaction --no-progress --prefer-dist ${{ matrix.composer-flags }}
+        continue-on-error: ${{ matrix.allow_failure }}
 
       - name: Run TEST suite
         run: composer run-script test:ci -- -C --coverage tests/output/coverage.xml --coverage-src=src
+        continue-on-error: ${{ matrix.allow_failure }}
         #run: vendor/bin/tester tests -C --coverage tests/output/coverage.xml --coverage-src=src
 
       - name: Install php-coveralls
+        if: ${{ !matrix.allow_failure }}
         run: composer global require -o --no-interaction --no-progress --prefer-dist php-coveralls/php-coveralls
 
       - name: Upload coverage results to Coveralls
+        if: ${{ !matrix.allow_failure }}
         uses: nick-invision/retry@v3
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
