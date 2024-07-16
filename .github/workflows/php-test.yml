@@ -51,8 +51,7 @@ jobs:
           restore-keys: ${{ runner.os }}-php-
 
       - name: Override packages
-        #if: matrix.php == '8.4'
-        if: matrix.extra_require
+        if: ${{ matrix.extra_require }}
         run: composer require --dev ${{ matrix.extra_require }}
 
       - name: Update composer dependencies
