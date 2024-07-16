@@ -18,7 +18,7 @@ final class NodeNotMovable extends LogicException implements IndicatesTreeIssue
 {
     public mixed $node;
 
-    public function __construct(mixed $node, $message = null, $code = null, Throwable $previous = null)
+    public function __construct(mixed $node, ?string $message = null, ?int $code = null, ?Throwable $previous = null)
     {
         $this->node = $node;
         parent::__construct($message ?? 'Encountered a non-movable node while manipulating a tree.', $code ?? 0, $previous);

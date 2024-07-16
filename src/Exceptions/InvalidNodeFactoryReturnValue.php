@@ -18,7 +18,7 @@ final class InvalidNodeFactoryReturnValue extends LogicException implements Fail
 {
     use AcceptDebugContext;
 
-    public function __construct($message = null, $code = null, Throwable $previous = null)
+    public function __construct(?string $message = null, ?int $code = null, ?Throwable $previous = null)
     {
         parent::__construct(
             $message ?? ('The node factory must return a movable node instance (' . MovableNodeContract::class . ').'),

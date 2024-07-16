@@ -14,7 +14,7 @@ final class InvalidTreePath extends RuntimeException implements FailsIntegrity, 
 {
     use AcceptDebugContext;
 
-    public function __construct($message = null, $code = null, Throwable $previous = null)
+    public function __construct(?string $message = null, ?int $code = null, ?Throwable $previous = null)
     {
         parent::__construct($message ?? 'The given value is not a valid tree path.', $code ?? 0, $previous);
     }
