@@ -58,7 +58,7 @@ jobs:
         run: composer global require -o --no-interaction --no-progress --prefer-dist php-coveralls/php-coveralls
 
       - name: Upload coverage results to Coveralls
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@v3
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_PARALLEL: true
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notify Coveralls when build is finished
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
