@@ -441,7 +441,7 @@ The above will iterate over the whole subtree, including the node itself and all
 >
 > Traversals may be used to decorate nodes or even alter the trees.  
 > Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
-> otherwise you may experience unexpected.
+> otherwise you may experience the unexpected.
 >
 
 
@@ -598,7 +598,7 @@ and considering the parent object (the article, the thread or the site) to be th
 
 One of the solutions is to prepend an empty data element and then ignore it during iterations if it is not desired to iterate over the root.
 
-Observe using `Seed` helper class:
+Observe the use of the `Seed` helper class:
 ```php
 use Dakujem\Oliva\MaterializedPath;
 use Dakujem\Oliva\Seed;
