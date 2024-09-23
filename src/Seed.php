@@ -31,6 +31,8 @@ final class Seed
      */
     public static function chain(iterable ...$input): Generator
     {
+        // TODO We may integrate with dakujem/toru, because it provides more methods to work with iterables.
+        //      We may also just add the reference to the readme with some examples (filtering/search), to avoid adding a dependency.
         foreach ($input as $iterable) {
             yield from $iterable;
         }
