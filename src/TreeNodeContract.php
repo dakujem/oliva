@@ -48,13 +48,13 @@ interface TreeNodeContract
     public function isLeaf(): bool;
 
     /**
-     * Returns `true` if the node has no parent, i.e. it is a root node.
+     * Returns `true` if the node has no parent, i.e., it is a root node.
      */
     public function isRoot(): bool;
 
     /**
      * Get the root node.
-     * May be self.
+     * The returned node may be the node itself when it already is the root node.
      */
     public function root(): TreeNodeContract;
 }

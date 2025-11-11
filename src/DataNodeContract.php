@@ -7,8 +7,8 @@ namespace Dakujem\Oliva;
 /**
  * Contract for nodes operating with data.
  *
- * Most nodes SHOULD implement this contract, but do not have to.
- * Alternative approach to implementing this contract would be for nodes
+ * Most nodes SHOULD implement this contract but do not have to.
+ * An alternative approach to implementing this contract would be for nodes
  * to define their own public props, methods,
  * or to implement proxying, magic getters and setters, etc.
  *
