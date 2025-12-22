@@ -7,6 +7,12 @@ Oliva follows semantic versioning.\
 Please report any issues.
 
 
+## v1.2.x
+
+- Added `TreeNodeTrait` and `MovableNodeTrait` that implement methods of `TreeNodeContract` and `MovableNodeContract`, respectively.
+- Removed EOL PHP 8.0 support
+
+
 ## v1.1.x
 
 - Added `Seed::chain` method for iterable collection chaining: the new method takes over `Seed::merged` which becomes its alias for backward compatibility.
