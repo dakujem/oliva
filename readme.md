@@ -404,7 +404,7 @@ The traversal iterators and generators will iterate over **all** the tree's node
 
 >
 > If unsure what the different traversals mean, read more about [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
-> 
+>
 
 ```php
 use Dakujem\Oliva\Iterator\Traversal;
@@ -416,11 +416,12 @@ foreach(Traversal::levelOrder($root) as $node) { /* ... */ }
 foreach(new LevelOrderTraversal($root) as $node) { /* ... */ }
 ```
 
+>
 > 💡
 >
 > The key difference between the iterator classes and generator methods is in the keys.
 > If the keys in the iteration do not matter, use the `Traversal`'s generator methods for slightly better performance.
-> 
+>
 
 If the order of traversal is not important, a `Node` instance can simply be iterated over:
 
@@ -439,9 +440,10 @@ The above will iterate over the whole subtree, including the node itself and all
 >
 > 💡
 >
-> Traversals may be used to decorate nodes or even alter the trees.  
-> Be sure to understand how each of the traversals work before altering the tree structure within a traversal,
-> otherwise you may experience the unexpected.
+> For manipulating tree iterators, or any other iterable collections,
+> [dakujem/toru](https://github.com/dakujem/toru) may be used.  
+> Toru is based on generators and thus provides efficient operations when
+> [recursive filter iterators](https://www.php.net/manual/en/class.recursivefilteriterator.php) are used.
 >
 
 
@@ -460,7 +462,7 @@ $root = (new TreeBuilder( ... ))->build(
     $filteredCollection,
 );
 
-// Iterate over leafs only.
+// Iterate over leaves only.
 $filter = new Filter($root, fn(Node $node): bool => $node->isLeaf());
 foreach($filter as $node){
     // ...
@@ -472,6 +474,11 @@ $node = Seed::firstOf(new Filter(
     accept: fn(Node $node): bool => $node->data()?->id === 42),
 );
 ```
+
+>
+> For manipulating iterators, [dakujem/toru](https://github.com/dakujem/toru) may be used,
+> which provides more robust implementation and many more manipulation methods than the `Seed` class offers.
+>
 
 
 ### Searching for specific nodes
@@ -572,7 +579,7 @@ where
 - `$vector` is the node's vector in a tree 
     - it is a path from the root to the node with **child indexes** being the vector's elements
     - vector of a root is empty `[]` (or equal to `$startingVector` if passed to the iterator constructor)
-    - current node's index within its parent's children is the last element of the vector
+    - the current node's index within its parent's children is the last element of the vector
 - `$seq` is the current sibling numerator (first child is `0`, second child is `1`, and so on)
 - `$counter` is the default iteration numerator that increments by 1 with each node (0, 1, 2, ...)
     - without a key callable, this is the key sequence
@@ -584,7 +591,7 @@ All Oliva traversal iterators accept a key callable and a starting vector (a pre
 > 
 > Be careful with `iterator_to_array` when using key callable, because colliding keys will be overwritten without a warning.  
 > The key callable SHOULD generate unique keys.
-> 
+>
 
 
 ## Cookbook
@@ -620,7 +627,8 @@ foreach(Seed::omitNull($root) as $node) {  // The node with `null` data is omitt
 }
 ```
 
-We could also use `Seed::merged` to prepend an item with fabricated root data, but then `Seed::omitRoot` must be used to omit the root instead:
+We could also use `Seed::chain` to prepend an item with fabricated root data,
+but then `Seed::omitRoot` must be used to omit the root instead of `Seed::omitNull`:
 ```php
 use Dakujem\Oliva\MaterializedPath;
 use Dakujem\Oliva\Seed;
@@ -633,7 +641,7 @@ $pathExtractor = fn(Item $item) => $item->path;
 
 $builder = new MaterializedPath\TreeBuilder( ... );
 $root = $builder->build(
-    input: Seed::merged([new Item(id: 0, path: '')], $source),
+    input: Seed::chain([new Item(id: 0, path: '')], $source),
 );
 
 foreach(Seed::omitRoot($root) as $node) {  // The root node is omitted from the iteration
@@ -644,7 +652,8 @@ foreach(Seed::omitRoot($root) as $node) {  // The root node is omitted from the 
 
 ### Recursive tree without root data
 
-Similar situation may happen when using the recursive builder on a subtree, when the root node of the subtree has a non-null parent.
+A similar situation may occur when using the recursive builder on a subtree,
+when the root node of the subtree has a non-null parent.
 
 This is very simply solved by passing the `$root` argument to the tree builder.
 

@@ -17,6 +17,9 @@ use IteratorIterator;
  * - simplify working with iterables
  * - produce filtering callables to be used with the Filter iterator or input data
  *
+ * Note there is a more robust library that implements these operations and much more - `dakujem/toru`:
+ * @link https://github.com/dakujem/toru - a standalone tool for manipulating iterable collections
+ *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class Seed
@@ -50,7 +53,7 @@ final class Seed
     }
 
     /**
-     * Prepend `null` value at the beginning of the data collection.
+     * Prepend a `null` value at the beginning of the data collection.
      * Use when missing root.
      * Remember, the data accessor and the node factory must be aware that a null may be passed to them.
      */
