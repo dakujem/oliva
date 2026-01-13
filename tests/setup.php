@@ -51,7 +51,7 @@ final class TreeTesterTool
         return $carry;
     }
 
-    public static function visualize(TreeNodeContract $root, callable $iteratorDecorator = null):array
+    public static function visualize(TreeNodeContract $root, ?callable $iteratorDecorator = null):array
     {
         $it = new PreOrderTraversal($root, fn(
             TreeNodeContract $node,
