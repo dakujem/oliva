@@ -33,19 +33,23 @@ final class Tree
         MovableNodeContract $parent,
         string|int|null $key = null,
     ): ?MovableNodeContract {
-        // If the current parent is different, first detach the node.
         $currentParent = $node->parent();
-        if ($currentParent === $parent) {
-            // Already linked, but check the link the other way around.
-            self::adoptChild($parent, $node, $key);
-            return null;
-        }
-        if (null !== $currentParent) {
-            $originalParent = self::unlink($node);
-        }
-        $node->setParent($parent);
 
+        // If the node already has a parent, but it is different from the target one, detach the node first.
+        if (null !== $currentParent && $currentParent !== $parent) {
+            $originalParent = self::unlink($node);
+            $currentParent = null;
+        }
+
+        // Set the parent reference (child-to-parent link).
+        if (null === $currentParent) {
+            $node->setParent($parent);
+        }
+
+        // Create the parent-to-child link.
         self::adoptChild($parent, $node, $key);
+
+        // If a parent was unlinked during the process, return it.
         return $originalParent ?? null;
     }
 
