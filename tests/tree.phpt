@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dakujem\Test;
 
+use Dakujem\Oliva\Exceptions\ChildKeyCollision;
 use Dakujem\Oliva\Exceptions\NodeNotMovable;
 use Dakujem\Oliva\Node;
 use Dakujem\Oliva\Simple\NodeBuilder;
@@ -185,5 +186,44 @@ require_once __DIR__ . '/setup.php';
     // This call removes the child and re-links it under a different key.
     Tree::link($node1, $parent, 'three');
     Assert::same(['two' => $node2, 'three' => $node1], $parent->children());
+})();
+
+
+(function () {
+    //
+    // Duplicate linking of the same node without duplicate handling does not prevent adding the same node multiple times.
+    //
+
+    $node = new Node(null);
+    $parent = new Node(null);
+    Tree::link($node, $parent); // default index `0`
+
+    // this will add the same node duplicate under `1`,
+    // behaves like an array push
+    Tree::link($node, $parent, handleDuplicateLinking: false);
+    Assert::same([0 => $node, 1 => $node], $parent->children());
+    // this will add the same node yet again under `foo`
+    Tree::link($node, $parent, 'foo', handleDuplicateLinking: false);
+    Assert::same([0 => $node, 1 => $node, 'foo' => $node], $parent->children());
+
+    $node1 = new Node(null);
+    $node2 = new Node(null);
+    $children = ['one' => $node1, 'two' => $node2];
+    $parent = new Node(null, children: $children);
+    Assert::same($children, $parent->children()); // sanity check
+
+    // Attempting to add the same node under the same key without the duplicate node handling mechanism still has no effect.
+    // Also, attempting to add the same node under a different key without the duplicate node handling mechanism
+    // still results in a ChildKeyCollision exception.
+    Tree::link($node1, $parent, 'one', handleDuplicateLinking: false);
+    Assert::same($children, $parent->children());
+    Assert::throws(function () use ($parent, $node1) {
+        Tree::link($node1, $parent, 'two', handleDuplicateLinking: false);
+    }, ChildKeyCollision::class);
+
+    // Without the duplicate node handling mechanism, this call will allow adding the node as a duplicate child,
+    // possibly causing issues in the tree structure, but improving performance of a large number of subsequent calls.
+    Tree::link($node1, $parent, 'three', handleDuplicateLinking: false);
+    Assert::same(['one' => $node1, 'two' => $node2, 'three' => $node1], $parent->children());
 })();
 

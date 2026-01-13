@@ -27,11 +27,18 @@ final class Tree
      * that link will be broken and the original parent will be returned.
      *
      * Null is returned in all other cases.
+     *
+     * Note:
+     *   Because of the node lookup, this method may be very slow if linking to a node with a large number
+     *   of children with the duplicate linking handling mechanism on.
+     *   In such cases, making sure there are no duplicates beforehand,
+     *   the `$handleDuplicateLinking` parameter may be set to `false`.
      */
     public static function link(
         MovableNodeContract $node,
         MovableNodeContract $parent,
         string|int|null $key = null,
+        bool $handleDuplicateLinking = true,
     ): ?MovableNodeContract {
         $currentParent = $node->parent();
 
@@ -47,7 +54,7 @@ final class Tree
         }
 
         // Create the parent-to-child link.
-        self::adoptChild($parent, $node, $key);
+        self::adoptChild($parent, $node, $key, $handleDuplicateLinking);
 
         // If a parent was unlinked during the process, return it.
         return $originalParent ?? null;
@@ -159,13 +166,18 @@ final class Tree
 
     /**
      * @internal
+     * Note: $parent->childKey($child) is slow on nodes with many children when repeatedly called.
      */
     private static function adoptChild(
         MovableNodeContract $parent,
         MovableNodeContract $child,
-        string|int|null $key = null
+        string|int|null $key,
+        bool $handleDuplicateLinking,
     ): void {
-        $existing = $parent->childKey($child);
+        // Note:
+        // The duplicate adding prevention is very slow for nodes with many siblings due to the child node lookup
+        // (done by the `childKey` method), if not optimized internally.
+        $existing = $handleDuplicateLinking ? $parent->childKey($child) : null;
         if (
             null !== $existing &&
             $parent->child($existing) === $child &&

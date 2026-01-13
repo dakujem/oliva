@@ -11,6 +11,9 @@ Please report any issues.
 
 - `Node::addChild()` method (through the implementation in `MovableNodeTrait::addChild`) now allows adding the same node
   under the same key without having an effect, previously it would throw the `ChildKeyCollision` exception
+- `Tree::link()` method now allows for turning off the duplicate node handling mechanism,
+  which prevents adding the same child multiple times
+  - used for performance optimization when linking multiple children in a sequence
 
 
 ## v1.2.x
