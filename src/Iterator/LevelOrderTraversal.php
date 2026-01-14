@@ -11,6 +11,9 @@ use IteratorAggregate;
 /**
  * Breadth-first search (level-order) traversal iterator.
  *
+ * See also the equivalent generator:
+ * @see Traversal::levelOrder()
+ *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class LevelOrderTraversal implements IteratorAggregate

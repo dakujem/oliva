@@ -12,6 +12,9 @@ use IteratorAggregate;
 /**
  * Depth-first search pre-order traversal iterator.
  *
+ * See also the equivalent generator:
+ * @see Traversal::preOrder()
+ *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class PreOrderTraversal implements IteratorAggregate

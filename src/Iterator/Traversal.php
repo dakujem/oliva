@@ -6,13 +6,14 @@ namespace Dakujem\Oliva\Iterator;
 
 use Dakujem\Oliva\TreeNodeContract;
 use Generator;
+use LogicException;
 
 /**
- * This class creates generators to iterate over all tree nodes in different order.
+ * Creates generators to iterate over all tree nodes in different order.
  * Use these generators if you only need to iterate over the nodes without control over the keys.
  *
  * This implementation is more efficient than the iterator traversal implementations
- * because it does not allow to modify the keys in any way.
+ * because it does not allow modifying the keys in any way.
  * It is also less flexible for the same reason.
  *
  * @author Andrej Rypak <xrypak@gmail.com>
@@ -74,9 +75,10 @@ final class Traversal
         }
     }
 
-    // No not instantiate this class.
-    // This is enforced to avoid confusion with the traversal iterators.
-    private function __construct()
+    public function __construct()
     {
+        // Do not instantiate this class.
+        // This is enforced to avoid confusion with the traversal iterators.
+        throw new LogicException(sprintf('The `%s` class is static.', self::class));
     }
 }

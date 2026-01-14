@@ -12,6 +12,9 @@ use IteratorAggregate;
 /**
  * Depth-first search post-order traversal iterator.
  *
+ * See also the equivalent generator:
+ * @see Traversal::postOrder()
+ *
  * @author Andrej Rypak <xrypak@gmail.com>
  */
 final class PostOrderTraversal implements IteratorAggregate
