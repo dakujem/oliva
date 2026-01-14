@@ -220,30 +220,50 @@ require_once __DIR__ . '/setup.php';
 (function () {
     $root = Preset::wikiTree();
 
+    //
     // level-order (?), leaves only (the default)
-    $str = [];
-    foreach (new RecursiveIteratorIterator(new Native($root)) as $node) {
-        $str[] = $node->data();
-    }
-    Assert::same('A,C,E,H', implode(',', $str));
-    $str = [];
-    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::LEAVES_ONLY) as $node) {
-        $str[] = $node->data();
-    }
-    Assert::same('A,C,E,H', implode(',', $str));
+    //
 
+    $str = $keys = [];
+    foreach (new RecursiveIteratorIterator(new Native($root)) as $key => $node) {
+        $str[] = $node->data();
+        $keys[] = $key;
+    }
+    Assert::same('A,C,E,H', implode(',', $str));
+    Assert::same('0,0,1,0', implode(',', $keys));
+
+    $str = $keys = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::LEAVES_ONLY) as $key => $node) {
+        $str[] = $node->data();
+        $keys[] = $key;
+    }
+    Assert::same('A,C,E,H', implode(',', $str));
+    Assert::same('0,0,1,0', implode(',', $keys));
+
+    //
     // pre-order, all nodes
-    $str = [];
-    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::SELF_FIRST) as $node) {
-        $str[] = $node->data();
-    }
-    Assert::same('F,B,A,D,C,E,G,I,H', implode(',', $str));
+    //
 
-    // post-order, all nodes
-    $str = [];
-    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::CHILD_FIRST) as $node) {
+    $str = $keys = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::SELF_FIRST) as $key => $node) {
         $str[] = $node->data();
+        $keys[] = $key;
+    }
+    // F,B,A,D,C,E,G,I,H is the iteration order of nodes, which corresponds to the following child indexes (iteration keys):
+    // 0,0,0,1,0,1,1,0,0
+    Assert::same('F,B,A,D,C,E,G,I,H', implode(',', $str));
+    Assert::same('0,0,0,1,0,1,1,0,0', implode(',', $keys));
+
+    //
+    // post-order, all nodes
+    //
+
+    $str = $keys = [];
+    foreach (new RecursiveIteratorIterator(new Native($root), RecursiveIteratorIterator::CHILD_FIRST) as $key => $node) {
+        $str[] = $node->data();
+        $keys[] = $key;
     }
     Assert::same('A,C,E,D,B,H,I,G,F', implode(',', $str));
+    Assert::same('0,0,1,1,0,0,0,1,0', implode(',', $keys));
 })();
 

@@ -126,3 +126,12 @@ require_once __DIR__ . '/setup.php';
     Assert::same(['original' => $node], $parent->children());
 })();
 
+(function () {
+    $parent = new Node(null);
+    $node = new NotMovable(null);
+
+    Assert::throws(function () use ($parent, $node) {
+        Tree::linkChildren($parent, [$node]);
+    }, NodeNotMovable::class, 'Encountered a non-movable node while manipulating a tree.');
+})();
+
