@@ -135,3 +135,55 @@ require_once __DIR__ . '/setup.php';
     }, NodeNotMovable::class, 'Encountered a non-movable node while manipulating a tree.');
 })();
 
+
+(function () {
+    //
+    // Duplicate linking of the same node without specifying a key should have no effect.
+    //
+
+    $parent = new Node(null);
+    $node = new Node(null);
+
+    Tree::link($node, $parent); // default index `0`
+    Tree::link($node, $parent); // has no effect
+    Assert::same([0 => $node], $parent->children());
+
+    Tree::link($node, $parent, 'foo');
+    Tree::link($node, $parent); // has no effect, preserves the previously assigned key
+    Assert::same(['foo' => $node], $parent->children());
+})();
+
+
+(function () {
+    //
+    // Duplicate linking of the same node with the same key should have no effect.
+    //
+
+    $node1 = new Node(null);
+    $node2 = new Node(null);
+    $children = ['one' => $node1, 'two' => $node2];
+    $parent = new Node(null, children: $children);
+    Assert::same($children, $parent->children()); // sanity check
+
+    // Calling Tree::link here has no effect and does not change the order of the child nodes.
+    Tree::link($node1, $parent, 'one');
+    Assert::same($children, $parent->children());
+})();
+
+
+(function () {
+    //
+    // Duplicate linking of the same node with a specific key should change the node's key (re-link the node with a different child key).
+    //
+
+    $node1 = new Node(null);
+    $node2 = new Node(null);
+    $children = ['one' => $node1, 'two' => $node2];
+    $parent = new Node(null, children: $children);
+    Assert::same($children, $parent->children()); // sanity check
+
+    // This call removes the child and re-links it under a different key.
+    Tree::link($node1, $parent, 'three');
+    Assert::same(['two' => $node2, 'three' => $node1], $parent->children());
+})();
+
