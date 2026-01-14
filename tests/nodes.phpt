@@ -294,11 +294,11 @@ require_once __DIR__ . '/setup.php';
         $node->addChild(new Node(null), 'key');
     }, ChildKeyCollision::class, 'Collision not allowed: key');
 
-    // The current implementation does not allow this even when the same node is being added with the same key.
-    // This is intentional, for simplicity. Tree::link covers this cases without hassle.
+    // ... except for adding the same node with the same key, which has no effect.
+    $node = new Node(null);
     $child = new Node(null);
     $node->addChild($child, 'another');
-    Assert::throws(function () use ($node, $child) {
-        $node->addChild($child, 'another');
-    }, ChildKeyCollision::class, 'Collision not allowed: another');
+    Assert::same(['another' => $child], $node->children());
+    $node->addChild($child, 'another');
+    Assert::same(['another' => $child], $node->children());
 })();

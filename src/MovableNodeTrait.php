@@ -40,7 +40,7 @@ trait MovableNodeTrait
             $this->children[] = $child;
         } elseif (!isset($this->children[$key])) {
             $this->children[$key] = $child;
-        } else {
+        } elseif ($child !== $this->children[$key]) {
             throw (new ChildKeyCollision('Collision not allowed: ' . $key))
                 ->tag('parent', $this)
                 ->tag('child', $child)
