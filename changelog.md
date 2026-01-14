@@ -7,6 +7,12 @@ Oliva follows semantic versioning.\
 Please report any issues.
 
 
+## v1.3.x
+
+- `Node::addChild()` method (through the implementation in `MovableNodeTrait::addChild`) now allows adding the same node
+  under the same key without having an effect, previously it would throw the `ChildKeyCollision` exception
+
+
 ## v1.2.x
 
 - Added `TreeNodeTrait` and `MovableNodeTrait` that implement methods of `TreeNodeContract` and `MovableNodeContract`, respectively.
