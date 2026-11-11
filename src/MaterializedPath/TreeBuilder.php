@@ -126,7 +126,7 @@ final class TreeBuilder
                     ->tag('index', $inputIndex);
             }
             foreach ($vector as $i) {
-                if (!is_string($i) && !is_integer($i)) {
+                if (!is_string($i) && !is_int($i)) {
                     throw (new ExtractorReturnValueIssue('The vector may only consist of strings or integers.'))
                         ->tag('index', $i)
                         ->tag('vector', $vector)
