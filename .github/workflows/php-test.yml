@@ -25,6 +25,7 @@ jobs:
           - php: '8.5'
             #allow_failure: true
             #extra_require: 'nette/tester:dev-master'
+          - php: '8.6'
     # Steps represent a sequence of tasks that will be executed as part of the job
     name: "PHP${{ matrix.php }} ${{ matrix.composer-flags }}"
     steps:
